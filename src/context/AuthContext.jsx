@@ -16,12 +16,8 @@ export function AuthProvider({ children }) {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
       } else {
-        // Auto-initialize active demo session so dashboard renders immediately on load
-        const demoUser = { username: "yatharthvj", email: "yashuvj7@gmail.com", role: "ROLE_ADMIN" };
-        setToken("demo_token_smart_road_2026");
-        setUser(demoUser);
-        localStorage.setItem("smart_road_token", "demo_token_smart_road_2026");
-        localStorage.setItem("smart_road_user", JSON.stringify(demoUser));
+        setToken(null);
+        setUser(null);
       }
     } catch (e) {
       console.error("Failed to restore auth session:", e);
