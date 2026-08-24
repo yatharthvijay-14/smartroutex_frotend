@@ -1,0 +1,361 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* ═══════════════════════════════════════════════════════════════════
+   SmartRouteX — Dual-Theme CSS Variables
+   1. Daylight Asphalt (Light Mode)
+   2. Asphalt Night (Dark Mode)
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Light Mode (Daylight Asphalt) ── */
+:root, [data-theme="light"] {
+  /* Surfaces */
+  --bg:           #eceae3;     /* page background */
+  --bg-grid:      #dedad0;     /* subtle grid line overlay */
+  --panel:        #ffffff;     /* card background */
+  --panel-border: #dedad0;     /* card border / dividers */
+
+  /* Text */
+  --text-primary:  #1c1b17;    /* headings, values */
+  --text-secondary:#6b675c;    /* subtitles, descriptions */
+  --text-faint:    #a19c8d;    /* metadata, timestamps */
+
+  /* Brand accent */
+  --accent:       #b8860b;    /* brand dot core */
+  --accent-line:  #d4a017;    /* header rule, section markers */
+
+  /* Status: Safe / Positive */
+  --safe:         #1a7a4c;
+  --safe-bg:      #e3f4ea;
+  --safe-border:  #a9dcc0;
+
+  /* Status: Risk / Danger */
+  --risk:         #b3401f;
+  --risk-bg:      #fbe8e1;
+  --risk-border:  #eec2ae;
+
+  /* Status: Medium / Caution */
+  --medium:       #a3760a;
+  --medium-bg:    #fbf0dd;
+  --medium-border:#edd39b;
+
+  /* Type */
+  --font-mono:    'IBM Plex Mono', 'SF Mono', 'JetBrains Mono', Consolas, monospace;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Universal Component Aliases */
+  --surface:        var(--panel);
+  --surface-sunken: #f5f3ec;
+  --ink:            var(--text-primary);
+  --ink-soft:       var(--text-secondary);
+  --line:           var(--panel-border);
+
+  --warn:           var(--medium);
+  --warn-bg:        var(--medium-bg);
+  --warn-border:    var(--medium-border);
+
+  --critical:       var(--risk);
+  --critical-bg:    var(--risk-bg);
+  --critical-border:var(--risk-border);
+
+  --bg-base:        var(--bg);
+  --bg-card:        var(--panel);
+  --bg-elevated:    var(--surface-sunken);
+  --bg-input:       var(--panel);
+  --border:         var(--panel-border);
+  --sidebar-bg:     #f5f3ec;
+  --sidebar-border: var(--panel-border);
+  --scrollbar-track:#eceae3;
+  --scrollbar-thumb:#dedad0;
+  --shadow-sm:      0 2px 4px rgba(0,0,0,0.04);
+  --shadow-md:      0 8px 24px -10px rgba(0,0,0,0.08);
+  --shadow-lg:      0 16px 36px -12px rgba(0,0,0,0.12);
+}
+
+/* ── Dark Mode (Asphalt Night) ── */
+[data-theme="dark"] {
+  /* Surfaces */
+  --bg:           #0d0d0f;
+  --bg-grid:      #1a1a20;
+  --panel:        #17171b;
+  --panel-border: #2a2a30;
+
+  /* Text */
+  --text-primary:  #f2f1ec;
+  --text-secondary:#9a988f;
+  --text-faint:    #6b6963;
+
+  /* Brand accent */
+  --accent:       #d4a017;
+  --accent-line:  #d4a017;
+
+  /* Status: Safe / Positive */
+  --safe:         #4fd192;
+  --safe-bg:      rgba(79, 209, 146, 0.12);
+  --safe-border:  rgba(79, 209, 146, 0.3);
+
+  /* Status: Risk / Danger */
+  --risk:         #ff6b4a;
+  --risk-bg:      rgba(255, 107, 74, 0.12);
+  --risk-border:  rgba(255, 107, 74, 0.3);
+
+  /* Status: Medium / Caution */
+  --medium:       #f0b429;
+  --medium-bg:    rgba(240, 180, 41, 0.12);
+  --medium-border:rgba(240, 180, 41, 0.3);
+
+  /* Type */
+  --font-mono:    'IBM Plex Mono', 'SF Mono', 'JetBrains Mono', Consolas, monospace;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Universal Component Aliases */
+  --surface:        var(--panel);
+  --surface-sunken: #111114;
+  --ink:            var(--text-primary);
+  --ink-soft:       var(--text-secondary);
+  --line:           var(--panel-border);
+
+  --warn:           var(--medium);
+  --warn-bg:        var(--medium-bg);
+  --warn-border:    var(--medium-border);
+
+  --critical:       var(--risk);
+  --critical-bg:    var(--risk-bg);
+  --critical-border:var(--risk-border);
+
+  --bg-base:        var(--bg);
+  --bg-card:        var(--panel);
+  --bg-elevated:    var(--surface-sunken);
+  --bg-input:       var(--surface-sunken);
+  --border:         var(--panel-border);
+  --sidebar-bg:     #17171b;
+  --sidebar-border: var(--panel-border);
+  --scrollbar-track:#0d0d0f;
+  --scrollbar-thumb:#2a2a30;
+  --shadow-sm:      0 2px 6px rgba(0,0,0,0.4);
+  --shadow-md:      0 12px 28px -16px rgba(0,0,0,0.6);
+  --shadow-lg:      0 20px 40px -15px rgba(0,0,0,0.8);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background-color: var(--bg);
+  background-image: 
+    linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-attachment: fixed;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Typography Classes */
+h1, h2, h3, h4, .font-heading, .font-display {
+  font-family: 'Space Grotesk', var(--font-body);
+  letter-spacing: -0.02em;
+}
+
+body, button, input, select, textarea, .font-body {
+  font-family: var(--font-body);
+}
+
+.font-mono, .data-font, code, pre {
+  font-family: var(--font-mono) !important;
+  letter-spacing: -0.01em;
+}
+
+/* Status Badges */
+.badge-dashed-safe, .badge-safe {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--safe);
+  background: var(--safe-bg);
+  border: 1px solid var(--safe-border);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-dashed-warn, .badge-warn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--medium);
+  background: var(--medium-bg);
+  border: 1px solid var(--medium-border);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-dashed-critical, .badge-risk {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--risk);
+  background: var(--risk-bg);
+  border: 1px solid var(--risk-border);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Status Dots */
+.dot-glow-safe {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--safe);
+  box-shadow: 0 0 8px 2px var(--safe-border);
+  display: inline-block;
+}
+
+.dot-glow-warn {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--medium);
+  box-shadow: 0 0 8px 2px var(--medium-border);
+  display: inline-block;
+}
+
+.dot-glow-critical {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--risk);
+  box-shadow: 0 0 8px 2px var(--risk-border);
+  display: inline-block;
+}
+
+/* Section Title Amber Marker Dot */
+.section-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--accent);
+  box-shadow: 0 0 8px 2px rgba(212, 160, 23, 0.4);
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* Card Styling */
+.asphalt-card {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.25s ease;
+}
+
+.asphalt-card:hover {
+  border-color: var(--accent-line);
+}
+
+/* Active Selected Route Card */
+.route-card-active {
+  background: var(--safe-bg);
+  border: 1px solid var(--safe-border);
+  border-top: 3px solid var(--safe);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+/* Buttons */
+.btn-asphalt-primary {
+  background-color: var(--safe);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 8px;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-asphalt-primary:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 10px var(--safe-border);
+}
+
+.btn-asphalt-secondary {
+  background-color: var(--panel);
+  color: var(--text-primary);
+  border: 1px solid var(--panel-border);
+  font-weight: 600;
+  font-size: 12px;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-asphalt-secondary:hover {
+  background-color: var(--surface-sunken);
+  border-color: var(--text-secondary);
+}
+
+/* Header Rule */
+.header-accent-rule {
+  border-bottom: 2px solid var(--accent-line);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+/* Leaflet Map Styling Override */
+.leaflet-container {
+  background-color: var(--bg) !important;
+  font-family: var(--font-body) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--panel) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--panel) !important;
+}
