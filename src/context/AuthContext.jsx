@@ -12,7 +12,14 @@ export function AuthProvider({ children }) {
     try {
       const savedToken = localStorage.getItem("smart_road_token");
       const savedUser  = localStorage.getItem("smart_road_user");
-      if (savedToken && savedUser) {
+
+      // Purge legacy demo sessions so all users must sign in with real credentials
+      if (savedToken === "demo_token_smart_road_2026") {
+        localStorage.removeItem("smart_road_token");
+        localStorage.removeItem("smart_road_user");
+        setToken(null);
+        setUser(null);
+      } else if (savedToken && savedUser) {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
       } else {
