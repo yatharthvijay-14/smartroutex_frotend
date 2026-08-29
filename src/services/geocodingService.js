@@ -20,7 +20,6 @@ function fuzzyMatch(str, query) {
   const q = query.toLowerCase().replace(/[^a-z0-9]/g, "");
   if (s.includes(q)) return true;
 
-  // Replace common phonetic equivalents: 'ri' / 'vari', 'ae' / 'e', 'v' / 'w', 'ee' / 'i'
   const normS = s.replace(/v/g, "w").replace(/ee/g, "i").replace(/aa/g, "a").replace(/ari/g, "ri").replace(/vari/g, "vri");
   const normQ = q.replace(/v/g, "w").replace(/ee/g, "i").replace(/aa/g, "a").replace(/ari/g, "ri").replace(/vari/g, "vri");
   return normS.includes(normQ);
@@ -53,10 +52,10 @@ export const KOTA_LOCATIONS = [
   { id: "k-c2", name: "Cafe Coffee Day Jhalawar Road", displayName: "CCD, Near City Mall, Jhalawar Road, Kota", lat: 25.1710, lng: 75.8510, type: "cafe", aliases: ["ccd"] },
   { id: "k-c3", name: "Kota Tea Bar & Cafe Rajeev Gandhi Nagar", displayName: "Kota Tea Bar & Cafe, Rajeev Gandhi Nagar, Kota", lat: 25.1605, lng: 75.8705, type: "cafe", aliases: ["tea bar"] },
   { id: "k-c4", name: "Seven Wonders Lake View Cafe", displayName: "7 Wonders Promenade Cafe, Kishore Sagar Lake, Kota", lat: 25.1735, lng: 75.8412, type: "cafe", aliases: ["lake view cafe"] },
-  { id: "k-c5", name: "McDonald's City Mall Kota", displayName: "McDonald's, Ground Floor, City Mall, Kota", lat: 25.1635, lng: 75.8525, type: "restaurant", aliases: ["mcdonalds", "mcd"] },
+  { id: "k-c5", name: "McDonald's City Mall Kota", displayName: "McDonald's, Ground Floor, City Mall, Kota", lat: 25.1489, lng: 75.8525, type: "restaurant", aliases: ["mcdonalds", "mcd"] },
   { id: "k-c6", name: "Domino's Pizza Talwandi", displayName: "Domino's Pizza, Talwandi Sector A, Kota", lat: 25.1518, lng: 75.8422, type: "restaurant", aliases: ["dominos"] },
   { id: "k-c7", name: "Domino's Pizza Rajeev Gandhi Nagar", displayName: "Domino's Pizza, Coaching Hub, Rajeev Gandhi Nagar, Kota", lat: 25.1610, lng: 75.8700, type: "restaurant", aliases: ["dominos"] },
-  { id: "k-c8", name: "Barbeque Nation City Mall", displayName: "Barbeque Nation, 3rd Floor City Mall, Kota", lat: 25.1632, lng: 75.8522, type: "restaurant", aliases: ["barbeque nation"] },
+  { id: "k-c8", name: "Barbeque Nation City Mall", displayName: "Barbeque Nation, 3rd Floor City Mall, Kota", lat: 25.1488, lng: 75.8522, type: "restaurant", aliases: ["barbeque nation"] },
   { id: "k-c9", name: "Amar Punjabi Dhaba Aerodrome", displayName: "Amar Punjabi Dhaba, Aerodrome Circle, Kota", lat: 25.1795, lng: 75.8395, type: "restaurant", aliases: ["amar punjabi"] },
   { id: "k-c10", name: "Swagat Restaurant Gumanpura", displayName: "Swagat Restaurant, Shopping Centre, Gumanpura, Kota", lat: 25.1785, lng: 75.8485, type: "restaurant", aliases: ["swagat"] },
   { id: "k-c11", name: "Rolls Mania Rajeev Gandhi Nagar", displayName: "Rolls Mania, Rajeev Gandhi Nagar, Kota", lat: 25.1602, lng: 75.8702, type: "cafe", aliases: ["rolls mania"] },
@@ -127,7 +126,7 @@ export const reverseGeocodeLocation = async (lat, lng) => {
         "User-Agent": "SmartRouteX/2.0 (smartroutex.app)",
         "Accept-Language": "en-US,en;q=0.9"
       },
-      timeout: 5000
+      timeout: 6000
     });
 
     if (res.data?.display_name) {
@@ -243,7 +242,7 @@ export const searchAllLocations = async (query) => {
   if (!query || !query.trim()) return [];
   const q = query.trim().toLowerCase();
 
-  // 1. Instant Fuzzy Match in Local Kota Database (Cafes, Mandir, Hospitals, Coaching, Sectors)
+  // 1. Instant Fuzzy Match in Local Kota Database
   const localMatches = KOTA_LOCATIONS.filter(item =>
     fuzzyMatch(item.name, q) ||
     fuzzyMatch(item.displayName, q) ||
@@ -285,7 +284,7 @@ export const searchAllLocations = async (query) => {
   return combined;
 };
 
-// ─── OSRM Driving Route Engine ────────────────────────────────────────────────
+// ─── Multi-Mirror Driving Route Engine (Ultra-Fast OSRM Fallback Chain) ───────
 export const fetchOSRMRoute = async (startLat, startLng, endLat, endLng) => {
   const sLat = Number(startLat).toFixed(4);
   const sLng = Number(startLng).toFixed(4);
@@ -293,18 +292,18 @@ export const fetchOSRMRoute = async (startLat, startLng, endLat, endLng) => {
   const eLng = Number(endLng).toFixed(4);
 
   const endpoints = [
-    `https://router.project-osrm.org/route/v1/driving/${sLng},${sLat};${eLng},${eLat}?overview=full&steps=true&geometries=geojson`,
-    `https://routing.openstreetmap.de/routed-car/route/v1/driving/${sLng},${sLat};${eLng},${eLat}?overview=full&steps=true&geometries=geojson`
+    `https://routing.openstreetmap.de/routed-car/route/v1/driving/${sLng},${sLat};${eLng},${eLat}?overview=full&steps=true&geometries=geojson`,
+    `https://router.project-osrm.org/route/v1/driving/${sLng},${sLat};${eLng},${eLat}?overview=full&steps=true&geometries=geojson`
   ];
 
   for (const url of endpoints) {
     try {
-      const response = await axios.get(url, { timeout: 6000 });
+      const response = await axios.get(url, { timeout: 8000 });
       if (response.data?.routes?.length > 0) {
         const parsedRoutes = response.data.routes.map((route, idx) => {
           const coords = route.geometry.coordinates.map((c) => [c[1], c[0]]);
           const distanceKm = (route.distance / 1000).toFixed(1);
-          const durationMin = Math.round(route.duration / 60);
+          const durationMin = Math.max(2, Math.round(route.duration / 60));
           const rawSteps = route.legs?.[0]?.steps || [];
           const navigationSteps = rawSteps.map((st, sIdx) => {
             const type = st.maneuver?.type || "straight";
@@ -344,7 +343,7 @@ export const fetchOSRMRoute = async (startLat, startLng, endLat, endLng) => {
         };
       }
     } catch (error) {
-      console.warn(`OSRM "${url}" failed:`, error.message);
+      console.warn(`Routing endpoint "${url}" failed:`, error.message);
     }
   }
   return null;
