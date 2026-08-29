@@ -359,3 +359,20 @@ body, button, input, select, textarea, .font-body {
 .leaflet-popup-tip {
   background: var(--panel) !important;
 }
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--text-primary) !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  z-index: 100 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.2) !important;
+}

@@ -330,25 +330,29 @@ function LiveMap({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-3xl font-black text-amber-700">
-                {dynamicEtaMinutes} mins
+              <span className="text-2xl sm:text-3xl font-black text-amber-700">
+                {endPoint ? `${dynamicEtaMinutes} mins` : "Select Destination"}
               </span>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
                 {isRealGpsActive ? "GPS Tracking Active" : "Sim Mode"}
               </span>
             </div>
             <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5 flex items-center gap-2">
-              <span>{dynamicDistanceText}</span> • <span>Destination: {endPoint?.name || "Target Place"}</span>
+              {endPoint ? (
+                <><span>{dynamicDistanceText}</span> • <span>Destination: {endPoint.name}</span></>
+              ) : (
+                <span>Search or pick a destination place on map to calculate ETA &amp; safest route</span>
+              )}
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
-          {!isRealGpsActive && onSimulateDrive && (
+          {endPoint && !isRealGpsActive && onSimulateDrive && (
             <button
               onClick={onSimulateDrive}
-              className="px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-xl transition-all flex items-center gap-1.5"
+              className="px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-xl transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>▶</span> Test Move
             </button>

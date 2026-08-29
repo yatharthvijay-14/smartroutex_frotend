@@ -85,8 +85,8 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
   const [isRealGpsActive,    setIsRealGpsActive]    = useState(false);
   const [currentVehiclePos,  setCurrentVehiclePos]  = useState([25.1800, 75.8390]);
   const [gpsAccuracy,        setGpsAccuracy]        = useState(10);
-  const [dynamicEtaMinutes,  setDynamicEtaMinutes]  = useState(12);
-  const [dynamicDistanceText,setDynamicDistanceText]= useState("4.9 km");
+  const [dynamicEtaMinutes,  setDynamicEtaMinutes]  = useState(0);
+  const [dynamicDistanceText,setDynamicDistanceText]= useState("0.0 km");
   const [navProgressPercent, setNavProgressPercent] = useState(0);
   const [currentStepIndex,   setCurrentStepIndex]   = useState(0);
 
