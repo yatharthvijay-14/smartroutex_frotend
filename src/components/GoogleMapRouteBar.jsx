@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { searchAllLocations, reverseGeocodeLocation } from "../services/geocodingService";
+import { searchPlacesAPI, reverseGeocodeLocation } from "../services/geocodingService";
 import { MapPin, Navigation, Crosshair, Map, Sparkles, ShieldCheck, AlertTriangle, Loader2, X } from "lucide-react";
 
 function GoogleMapRouteBar({
@@ -33,9 +33,9 @@ function GoogleMapRouteBar({
     clearTimeout(startTimer.current);
     if (val.trim().length < 1) { setStartSuggestions([]); return; }
     startTimer.current = setTimeout(async () => {
-      const results = await searchAllLocations(val);
+      const results = await searchPlacesAPI(val);
       setStartSuggestions(results);
-    }, 200);
+    }, 150);
   };
 
   const handleEndQuery = val => {
@@ -49,10 +49,10 @@ function GoogleMapRouteBar({
     if (val.trim().length < 1) { setEndSuggestions([]); return; }
     setIsSearchingEnd(true);
     endTimer.current = setTimeout(async () => {
-      const results = await searchAllLocations(val);
+      const results = await searchPlacesAPI(val);
       setEndSuggestions(results);
       setIsSearchingEnd(false);
-    }, 200);
+    }, 150);
   };
 
   const selectStart = item => {

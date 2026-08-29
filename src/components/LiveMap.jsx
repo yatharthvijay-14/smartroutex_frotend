@@ -65,6 +65,21 @@ function ChangeMapView({ center, zoom = 15 }) {
   return null;
 }
 
+function FitRouteBounds({ path }) {
+  const map = useMap();
+  useEffect(() => {
+    if (path && path.length >= 2) {
+      try {
+        const bounds = L.latLngBounds(path);
+        if (bounds.isValid()) {
+          map.fitBounds(bounds, { padding: [60, 60], animate: true });
+        }
+      } catch (_) {}
+    }
+  }, [path, map]);
+  return null;
+}
+
 function LiveMap({
   roads = [],
   selectedRoad = null,
@@ -220,6 +235,7 @@ function LiveMap({
           )}
 
           <MapClickHandler onMapClick={handleMapClick} />
+          <FitRouteBounds path={safestPath} />
 
           {(vehiclePos || endPoint || selectedRoad) && (
             <ChangeMapView
