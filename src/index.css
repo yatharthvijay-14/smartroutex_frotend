@@ -346,6 +346,7 @@ body, button, input, select, textarea, .font-body {
 .leaflet-container {
   background-color: var(--bg) !important;
   font-family: var(--font-body) !important;
+  touch-action: pan-x pan-y pinch-zoom !important;
 }
 
 .leaflet-popup-content-wrapper {

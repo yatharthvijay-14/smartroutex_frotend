@@ -198,7 +198,9 @@ function LiveMap({
           zoomControl={true}
           scrollWheelZoom={false}
           doubleClickZoom={true}
-          touchZoom={true}
+          touchZoom="center"
+          dragging={true}
+          bounceAtZoomLimits={true}
         >
           {mapType === "SATELLITE" ? (
             <>

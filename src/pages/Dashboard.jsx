@@ -224,11 +224,33 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
     if (result?.evaluatedRoutes?.length > 0) {
       setSelectedCandidateRouteId(result.evaluatedRoutes[0].id);
     }
+    if (result) {
+      const isSafest = selectedRouteType === "SAFEST";
+      const dist = isSafest ? result.safestDistance : result.directDistance;
+      const dur = isSafest ? result.safestTime : result.directTime;
+      setDynamicDistanceText(dist || "4.5 km");
+      setDynamicEtaMinutes(parseInt(dur) || 9);
+    }
     setCurrentVehiclePos([sLat, sLng]);
     setRouteInvalidEvent(null);
 
     setActiveRoute(sLat, sLng, eLat, eLng);
-  }, [startPoint, endPoint, potholes, setActiveRoute]);
+  }, [startPoint, endPoint, potholes, setActiveRoute, selectedRouteType]);
+
+  // ── Sync Route ETA & Distance to UI ──────────────────────────────────────
+  useEffect(() => {
+    if (!endPoint || !routePlan) {
+      setDynamicEtaMinutes(0);
+      setDynamicDistanceText("0.0 km");
+      return;
+    }
+    const isSafest = selectedRouteType === "SAFEST";
+    const distText = isSafest ? (routePlan.safestDistance || routePlan.safestRoute?.distance) : (routePlan.directDistance || routePlan.directRoute?.distance);
+    const durText = isSafest ? (routePlan.safestTime || routePlan.safestRoute?.duration) : (routePlan.directTime || routePlan.directRoute?.duration);
+
+    setDynamicDistanceText(distText || "4.5 km");
+    setDynamicEtaMinutes(parseInt(durText) || 9);
+  }, [routePlan, selectedRouteType, endPoint]);
 
   const handleSelectCandidateRoute = (route) => setSelectedCandidateRouteId(route.id);
 
