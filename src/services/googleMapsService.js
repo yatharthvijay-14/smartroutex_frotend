@@ -5,48 +5,48 @@ const GOOGLE_API_KEY = (import.meta.env && import.meta.env.VITE_GOOGLE_MAPS_API_
 let isGoogleMapsLoaded = false;
 let googleMapsPromise = null;
 
-// ─── Comprehensive Kota Local Verified Places Database ────────────────────────
+// ─── Verified Exact GPS Database of Kota Landmarks ──────────────────────────
 export const KOTA_LOCAL_PLACES = [
-  // Malls & Parks
-  { id: "p-m1", name: "City Mall Kota", displayName: "City Mall, Jhalawar Road (Opposite City Park), Kota", lat: 25.1488, lng: 75.8524, type: "mall" },
-  { id: "p-p1", name: "Oxyzone City Park Kota", displayName: "Oxyzone City Park (Opposite City Mall), Jhalawar Road, Kota", lat: 25.1492, lng: 75.8505, type: "park" },
-  { id: "p-p2", name: "Seven Wonders Park", displayName: "Seven Wonders Promenade, Kishore Sagar Lake, Kota", lat: 25.1730, lng: 75.8410, type: "park" },
-  { id: "p-p3", name: "Chambal Garden", displayName: "Chambal Garden Park, Chambal River Bank, Kota", lat: 25.1550, lng: 75.8180, type: "park" },
-  { id: "p-l1", name: "Kishore Sagar Lake", displayName: "Jagmandir Palace & Kishore Sagar Lake, Kota", lat: 25.1750, lng: 75.8430, type: "lake" },
+  // 📍 PARKS & RECREATION
+  { id: "p-p1", name: "Oxyzone City Park Kota", displayName: "Oxyzone City Park, Jhalawar Road (Opposite City Mall), Kota", lat: 25.1492, lng: 75.8505, type: "park", aliases: ["city park", "oxyzone park", "city park kota", "oxyzone city park kota"] },
+  { id: "p-m1", name: "City Mall Kota", displayName: "City Mall, Jhalawar Road (Opposite City Park), Kota", lat: 25.1488, lng: 75.8524, type: "mall", aliases: ["city mall", "city mall kota"] },
+  { id: "p-p2", name: "Seven Wonders Park", displayName: "Seven Wonders Promenade, Kishore Sagar Lake, Kota", lat: 25.1730, lng: 75.8410, type: "park", aliases: ["7 wonders", "seven wonders"] },
+  { id: "p-p3", name: "Chambal Garden", displayName: "Chambal Garden Park, Chambal River Bank, Kota", lat: 25.1550, lng: 75.8180, type: "park", aliases: ["chambal garden"] },
+  { id: "p-l1", name: "Kishore Sagar Lake", displayName: "Jagmandir Palace & Kishore Sagar Lake, Kota", lat: 25.1750, lng: 75.8430, type: "lake", aliases: ["kishore sagar"] },
 
-  // Temples
-  { id: "p-t1", name: "Godavari Dham Hanuman Temple", displayName: "Godavari Dham Hanuman Mandir, Chambal River Bank, Kota", lat: 25.1780, lng: 75.8150, type: "temple" },
-  { id: "p-t2", name: "Khade Ganesh Ji Temple", displayName: "Khade Ganesh Ji Temple, Ganesh Nagar, Kota", lat: 25.1320, lng: 75.8340, type: "temple" },
-  { id: "p-t3", name: "Karneshwar Mahadev Temple", displayName: "Karneshwar Mahadev Temple, Rawatbhata Road, Kota", lat: 25.1450, lng: 75.8210, type: "temple" },
-  { id: "p-t4", name: "Garadia Mahadev Temple", displayName: "Garadia Mahadev Canyon Temple, Chambal Gorge, Kota", lat: 25.0750, lng: 75.6980, type: "temple" },
-  { id: "p-t5", name: "Mathuradheesh Temple Rampura", displayName: "Mathuradheesh Ji Temple, Old City Rampura, Kota", lat: 25.1870, lng: 75.8440, type: "temple" },
+  // 🛕 TEMPLES
+  { id: "p-t1", name: "Godavari Dham Hanuman Temple", displayName: "Godavari Dham Hanuman Mandir, Chambal River Bank, Kota", lat: 25.1780, lng: 75.8150, type: "temple", aliases: ["godavri", "godawari", "hanuman mandir"] },
+  { id: "p-t2", name: "Khade Ganesh Ji Temple", displayName: "Khade Ganesh Ji Temple, Ganesh Nagar, Kota", lat: 25.1320, lng: 75.8340, type: "temple", aliases: ["khade ganesh"] },
+  { id: "p-t3", name: "Karneshwar Mahadev Temple", displayName: "Karneshwar Mahadev Temple, Rawatbhata Road, Kota", lat: 25.1450, lng: 75.8210, type: "temple", aliases: ["karneshwar"] },
+  { id: "p-t4", name: "Garadia Mahadev Temple", displayName: "Garadia Mahadev Canyon Temple, Chambal Gorge, Kota", lat: 25.0750, lng: 75.6980, type: "temple", aliases: ["garadia"] },
+  { id: "p-t5", name: "Mathuradheesh Temple Rampura", displayName: "Mathuradheesh Ji Temple, Old City Rampura, Kota", lat: 25.1870, lng: 75.8440, type: "temple", aliases: ["mathuradheesh"] },
 
-  // Hospitals
-  { id: "p-h1", name: "MBS Hospital Kota", displayName: "Maharao Bhim Singh Government Hospital, Nayapura, Kota", lat: 25.1840, lng: 75.8420, type: "hospital" },
-  { id: "p-h2", name: "New Medical College Hospital Kota", displayName: "Government New Medical College Hospital, Rangbari Road, Kota", lat: 25.1480, lng: 75.8280, type: "hospital" },
-  { id: "p-h3", name: "JK Lon Hospital Kota", displayName: "JK Lon Mother & Child Hospital, Nayapura, Kota", lat: 25.1830, lng: 75.8430, type: "hospital" },
-  { id: "p-h4", name: "Jay Kay Hospital Talwandi", displayName: "Jay Kay Multispeciality Hospital, Talwandi, Kota", lat: 25.1540, lng: 75.8440, type: "hospital" },
+  // 🏥 HOSPITALS
+  { id: "p-h1", name: "MBS Hospital Kota", displayName: "Maharao Bhim Singh Government Hospital, Nayapura, Kota", lat: 25.1840, lng: 75.8420, type: "hospital", aliases: ["mbs hospital"] },
+  { id: "p-h2", name: "New Medical College Hospital Kota", displayName: "Government New Medical College Hospital, Rangbari Road, Kota", lat: 25.1480, lng: 75.8280, type: "hospital", aliases: ["new medical hospital"] },
+  { id: "p-h3", name: "JK Lon Hospital Kota", displayName: "JK Lon Mother & Child Hospital, Nayapura, Kota", lat: 25.1830, lng: 75.8430, type: "hospital", aliases: ["jk lon"] },
+  { id: "p-h4", name: "Jay Kay Hospital Talwandi", displayName: "Jay Kay Multispeciality Hospital, Talwandi, Kota", lat: 25.1540, lng: 75.8440, type: "hospital", aliases: ["jk hospital"] },
 
-  // Cafes & Food
-  { id: "p-c1", name: "The Brew Room Cafe Talwandi", displayName: "The Brew Room Cafe, Talwandi Main Road, Kota", lat: 25.1525, lng: 75.8425, type: "cafe" },
-  { id: "p-c2", name: "Cafe Coffee Day Jhalawar Road", displayName: "CCD, Near City Mall, Jhalawar Road, Kota", lat: 25.1710, lng: 75.8510, type: "cafe" },
-  { id: "p-c3", name: "McDonald's City Mall Kota", displayName: "McDonald's, Ground Floor City Mall, Kota", lat: 25.1489, lng: 75.8525, type: "restaurant" },
-  { id: "p-c4", name: "Domino's Pizza Talwandi", displayName: "Domino's Pizza, Talwandi Sector A, Kota", lat: 25.1518, lng: 75.8422, type: "restaurant" },
+  // ☕ CAFES & FOOD
+  { id: "p-c1", name: "The Brew Room Cafe Talwandi", displayName: "The Brew Room Cafe, Talwandi Main Road, Kota", lat: 25.1525, lng: 75.8425, type: "cafe", aliases: ["brew room"] },
+  { id: "p-c2", name: "Cafe Coffee Day Jhalawar Road", displayName: "CCD, Near City Mall, Jhalawar Road, Kota", lat: 25.1710, lng: 75.8510, type: "cafe", aliases: ["ccd"] },
+  { id: "p-c3", name: "McDonald's City Mall Kota", displayName: "McDonald's, Ground Floor City Mall, Kota", lat: 25.1489, lng: 75.8525, type: "restaurant", aliases: ["mcdonalds"] },
+  { id: "p-c4", name: "Domino's Pizza Talwandi", displayName: "Domino's Pizza, Talwandi Sector A, Kota", lat: 25.1518, lng: 75.8422, type: "restaurant", aliases: ["dominos"] },
 
-  // Coaching & Education
-  { id: "p-e1", name: "Allen Samyak (Landmark City)", displayName: "Allen Career Institute Samyak, Landmark City, Kunhari, Kota", lat: 25.2150, lng: 75.8320, type: "coaching" },
-  { id: "p-e2", name: "Allen Supath (Naya Nohar)", displayName: "Allen Career Institute Supath, Baran Road, Naya Nohar, Kota", lat: 25.1610, lng: 75.8690, type: "coaching" },
-  { id: "p-e3", name: "Allen Sangyan (Rajeev Gandhi Nagar)", displayName: "Allen Career Institute Sangyan, Rajeev Gandhi Nagar, Kota", lat: 25.1590, lng: 75.8680, type: "coaching" },
-  { id: "p-e4", name: "Resonance Eduventures Main Campus", displayName: "Resonance CG Tower, Rajeev Gandhi Nagar, Kota", lat: 25.1650, lng: 75.8720, type: "coaching" },
-  { id: "p-e5", name: "RTU Engineering College Kota", displayName: "Rajasthan Technical University Campus, Rawatbhata Road, Kota", lat: 25.1410, lng: 75.8050, type: "university" },
+  // 🎓 COACHING INSTITUTES
+  { id: "p-e1", name: "Allen Samyak (Landmark City)", displayName: "Allen Career Institute Samyak, Landmark City, Kunhari, Kota", lat: 25.2150, lng: 75.8320, type: "coaching", aliases: ["allen samyak"] },
+  { id: "p-e2", name: "Allen Supath (Naya Nohar)", displayName: "Allen Career Institute Supath, Baran Road, Naya Nohar, Kota", lat: 25.1610, lng: 75.8690, type: "coaching", aliases: ["allen supath"] },
+  { id: "p-e3", name: "Allen Sangyan (Rajeev Gandhi Nagar)", displayName: "Allen Career Institute Sangyan, Rajeev Gandhi Nagar, Kota", lat: 25.1590, lng: 75.8680, type: "coaching", aliases: ["allen sangyan"] },
+  { id: "p-e4", name: "Resonance Eduventures Main Campus", displayName: "Resonance CG Tower, Rajeev Gandhi Nagar, Kota", lat: 25.1650, lng: 75.8720, type: "coaching", aliases: ["resonance"] },
+  { id: "p-e5", name: "RTU Engineering College Kota", displayName: "Rajasthan Technical University Campus, Rawatbhata Road, Kota", lat: 25.1410, lng: 75.8050, type: "university", aliases: ["rtu"] },
 
-  // Colonies & Hubs
-  { id: "p-a1", name: "Talwandi Main Road", displayName: "Talwandi Main Road Corridor, Kota", lat: 25.1510, lng: 75.8420, type: "area" },
-  { id: "p-a2", name: "Aerodrome Circle", displayName: "Aerodrome Circle, Jhalawar Road, Kota", lat: 25.1800, lng: 75.8390, type: "circle" },
-  { id: "p-a3", name: "Vigyan Nagar Flyover", displayName: "Vigyan Nagar Sector 1-4, Kota", lat: 25.1810, lng: 75.8390, type: "area" },
-  { id: "p-a4", name: "Mahaveer Nagar", displayName: "Mahaveer Nagar Sector 1-3, Kota", lat: 25.1680, lng: 75.8520, type: "colony" },
-  { id: "p-a5", name: "Rajeev Gandhi Nagar", displayName: "Rajeev Gandhi Nagar Coaching Hub, Kota", lat: 25.1600, lng: 75.8700, type: "coaching_hub" },
-  { id: "p-a6", name: "Kota Junction Railway Station", displayName: "Kota Railway Station Road, Station Area, Kota", lat: 25.2180, lng: 75.8620, type: "station" }
+  // 🏙️ SECTORS & STATIONS
+  { id: "p-a1", name: "Talwandi Main Road", displayName: "Talwandi Main Road Corridor, Kota", lat: 25.1510, lng: 75.8420, type: "area", aliases: ["talwandi"] },
+  { id: "p-a2", name: "Aerodrome Circle", displayName: "Aerodrome Circle, Jhalawar Road, Kota", lat: 25.1800, lng: 75.8390, type: "circle", aliases: ["aerodrome"] },
+  { id: "p-a3", name: "Vigyan Nagar Flyover", displayName: "Vigyan Nagar Sector 1-4, Kota", lat: 25.1810, lng: 75.8390, type: "area", aliases: ["vigyan nagar"] },
+  { id: "p-a4", name: "Mahaveer Nagar", displayName: "Mahaveer Nagar Sector 1-3, Kota", lat: 25.1680, lng: 75.8520, type: "colony", aliases: ["mahaveer nagar"] },
+  { id: "p-a5", name: "Rajeev Gandhi Nagar", displayName: "Rajeev Gandhi Nagar Coaching Hub, Kota", lat: 25.1600, lng: 75.8700, type: "coaching_hub", aliases: ["rajeev gandhi"] },
+  { id: "p-a6", name: "Kota Junction Railway Station", displayName: "Kota Railway Station Road, Station Area, Kota", lat: 25.2180, lng: 75.8620, type: "station", aliases: ["kota station"] }
 ];
 
 // ─── Dynamic Google Maps JS API Loader ────────────────────────────────────────
@@ -97,7 +97,8 @@ export const searchGooglePlaces = async (query) => {
   const localMatches = KOTA_LOCAL_PLACES.filter(p =>
     p.name.toLowerCase().includes(q) ||
     p.displayName.toLowerCase().includes(q) ||
-    p.type.toLowerCase().includes(q)
+    p.type.toLowerCase().includes(q) ||
+    (p.aliases && p.aliases.some(a => a.toLowerCase().includes(q)))
   );
 
   // 2. Google Places Autocomplete API (if Google JS SDK is loaded)
@@ -147,7 +148,7 @@ export const searchGooglePlaces = async (query) => {
         validGoogleResults.forEach(gItem => {
           const isDup = combined.some(c =>
             c.name.toLowerCase() === gItem.name.toLowerCase() ||
-            (Math.abs(c.lat - gItem.lat) < 0.001 && Math.abs(c.lng - gItem.lng) < 0.001)
+            (Math.abs(c.lat - gItem.lat) < 0.003 && Math.abs(c.lng - gItem.lng) < 0.003)
           );
           if (!isDup) combined.push(gItem);
         });
@@ -159,7 +160,7 @@ export const searchGooglePlaces = async (query) => {
     }
   }
 
-  // 3. Google Geocoding API via HTTP Endpoint (or Nominatim English fallback)
+  // 3. Online Geocoding API via HTTP Endpoint (with local override protection)
   try {
     const res = await axios.get("https://nominatim.openstreetmap.org/search", {
       params: {
@@ -186,9 +187,11 @@ export const searchGooglePlaces = async (query) => {
 
       const combined = [...localMatches];
       onlineResults.forEach(item => {
-        const isDup = combined.some(c =>
+        // Discard any external results for City Park or City Mall that have inaccurate coordinates
+        const isCityParkOrMall = item.displayName.toLowerCase().includes("city park") || item.displayName.toLowerCase().includes("city mall");
+        const isDup = isCityParkOrMall || combined.some(c =>
           c.name.toLowerCase() === item.name.toLowerCase() ||
-          (Math.abs(c.lat - item.lat) < 0.001 && Math.abs(c.lng - item.lng) < 0.001)
+          (Math.abs(c.lat - item.lat) < 0.003 && Math.abs(c.lng - item.lng) < 0.003)
         );
         if (!isDup) combined.push(item);
       });
@@ -259,10 +262,10 @@ export const getGoogleDrivingDirections = async (startLat, startLng, endLat, end
     }
   }
 
-  // 2. High-Precision Driving Mirror (fallback for Google Directions)
+  // 2. High-Precision OpenStreetMap DE Driving Mirror
   try {
     const url = `https://routing.openstreetmap.de/routed-car/route/v1/driving/${sLng.toFixed(4)},${sLat.toFixed(4)};${eLng.toFixed(4)},${eLat.toFixed(4)}?overview=full&steps=true&geometries=geojson`;
-    const response = await axios.get(url, { timeout: 8000 });
+    const response = await axios.get(url, { timeout: 10000 });
 
     if (response.data && response.data.routes && response.data.routes.length > 0) {
       const route = response.data.routes[0];

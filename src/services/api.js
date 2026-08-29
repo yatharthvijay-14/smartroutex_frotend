@@ -19,20 +19,25 @@ export function calculateHaversineMeters(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-// Generate street-axis polyline for fallback
+// Generate street-axis polyline for fallback terminating exactly at destination
 function generateStreetAxisFallback(sLat, sLng, eLat, eLng) {
   const path = [];
-  const steps = 16;
-  const cornerLat = sLat;
-  const cornerLng = eLng;
+  const steps = 30;
 
-  for (let i = 0; i <= steps / 2; i++) {
-    const f = i / (steps / 2);
-    path.push([sLat, sLng + (cornerLng - sLng) * f]);
+  const midLat = sLat + (eLat - sLat) * 0.5;
+  const midLng = sLng + (eLng - sLng) * 0.5;
+
+  for (let i = 0; i <= steps / 3; i++) {
+    const f = i / (steps / 3);
+    path.push([sLat + (midLat - sLat) * f, sLng]);
   }
-  for (let i = 1; i <= steps / 2; i++) {
-    const f = i / (steps / 2);
-    path.push([cornerLat + (eLat - cornerLat) * f, eLng]);
+  for (let i = 1; i <= steps / 3; i++) {
+    const f = i / (steps / 3);
+    path.push([midLat, sLng + (midLng - sLng) * f]);
+  }
+  for (let i = 1; i <= steps / 3; i++) {
+    const f = i / (steps / 3);
+    path.push([midLat + (eLat - midLat) * f, midLng + (eLng - midLng) * f]);
   }
   return path;
 }
@@ -118,11 +123,11 @@ export const getAIRouteRecommendations = async () => {
 export const planMapRoute = async (startLat, startLng, endLat, endLng, allPotholesList = []) => {
   const sLat = (startLat && !isNaN(startLat)) ? Number(startLat) : 25.1800;
   const sLng = (startLng && !isNaN(startLng)) ? Number(startLng) : 75.8390;
-  const eLat = (endLat && !isNaN(endLat)) ? Number(endLat) : 25.1488;
-  const eLng = (endLng && !isNaN(endLng)) ? Number(endLng) : 75.8524;
+  const eLat = (endLat && !isNaN(endLat)) ? Number(endLat) : 25.1492;
+  const eLng = (endLng && !isNaN(endLng)) ? Number(endLng) : 75.8505;
 
   try {
-    // Fetch driving route from OSRM driving engine
+    // Fetch driving route from OSRM / Google driving engine
     const routeResult = await getDrivingRouteAPI(sLat, sLng, eLat, eLng);
 
     const hasDrivingCoords = routeResult && routeResult.coordinates && routeResult.coordinates.length >= 2;
