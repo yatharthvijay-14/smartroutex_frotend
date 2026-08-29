@@ -75,7 +75,7 @@ function ErrorState({ error, onRetry }) {
 function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation = null, onOpenReportModal, refreshTrigger = 0, onAlert }) {
   // ── Route state ──────────────────────────────────────────────────────────
   const [startPoint, setStartPoint] = useState({ name: "Current GPS Location", lat: 25.1800, lng: 75.8390 });
-  const [endPoint,   setEndPoint]   = useState({ name: "Talwandi Main Road",   lat: 25.1510, lng: 75.8420 });
+  const [endPoint,   setEndPoint]   = useState(null); // Destination empty by default until selected
   const [routePlan,  setRoutePlan]  = useState(null);
   const [selectedRouteType, setSelectedRouteType]       = useState("SAFEST");
   const [selectedCandidateRouteId, setSelectedCandidateRouteId] = useState(null);
@@ -184,16 +184,7 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
         };
         setStartPoint(userLoc);
         setCurrentVehiclePos([loc.lat, loc.lng]);
-
-        const isDefaultKota = Math.abs(loc.lat - 25.18) < 0.05 && Math.abs(loc.lng - 75.839) < 0.05;
-        if (!isDefaultKota) {
-          setEndPoint({
-            name: `Destination near ${loc.name || "you"}`,
-            displayName: `Near ${userLoc.name}`,
-            lat: loc.lat - 0.015,
-            lng: loc.lng + 0.015
-          });
-        }
+        // Destination remains null until selected explicitly
       }
     });
   }, []);
@@ -218,10 +209,14 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
   const handleCalculateRoute = useCallback(async (sPoint, ePoint, customPool) => {
     const startP = sPoint || startPoint;
     const endP   = ePoint || endPoint;
+    if (!endP || !endP.lat || !endP.lng) {
+      setRoutePlan(null);
+      return;
+    }
     const sLat = startP?.lat || 25.1800;
     const sLng = startP?.lng || 75.8390;
-    const eLat = endP?.lat   || 25.1510;
-    const eLng = endP?.lng   || 75.8420;
+    const eLat = endP.lat;
+    const eLng = endP.lng;
     const pool = customPool || potholes;
 
     const result = await planMapRoute(sLat, sLng, eLat, eLng, pool);

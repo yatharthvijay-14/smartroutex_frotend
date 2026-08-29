@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { searchAddressNominatim } from "../services/geocodingService";
-import { MapPin, Navigation, Crosshair, Map, Sparkles, ShieldCheck, AlertTriangle, Loader2 } from "lucide-react";
+import { MapPin, Navigation, Crosshair, Map, Sparkles, ShieldCheck, AlertTriangle, Loader2, X } from "lucide-react";
 
 function GoogleMapRouteBar({
   roads = [], startPoint, setStartPoint, endPoint, setEndPoint,
@@ -16,14 +16,14 @@ function GoogleMapRouteBar({
   const endTimer   = useRef(null);
 
   useEffect(() => { if (startPoint?.name) setStartQuery(startPoint.name); }, [startPoint]);
-  useEffect(() => { if (endPoint?.name)   setEndQuery(endPoint.name); },   [endPoint]);
+  useEffect(() => { setEndQuery(endPoint?.name || ""); }, [endPoint]);
 
   const buildLocal = (val, fallLat, fallLng) =>
     roads.filter(r => r.name?.toLowerCase().includes(val.toLowerCase()))
       .map(r => ({
         id: `db-${r.id || r.name}`,
         name: r.name,
-        displayName: `${r.name}, Kota Grid (${r.rating ? Number(r.rating).toFixed(1) : "4.0"}/5)`,
+        displayName: `${r.name} (${r.rating ? Number(r.rating).toFixed(1) : "4.0"}/5)`,
         lat: r.latitude  || fallLat,
         lng: r.longitude || fallLng
       }));
@@ -33,7 +33,9 @@ function GoogleMapRouteBar({
     clearTimeout(startTimer.current);
     if (val.trim().length < 2) { setStartSuggestions([]); return; }
     startTimer.current = setTimeout(async () => {
-      const local = buildLocal(val, 25.18, 75.84);
+      const baseLat = startPoint?.lat || 25.18;
+      const baseLng = startPoint?.lng || 75.84;
+      const local = buildLocal(val, baseLat, baseLng);
       const osm   = await searchAddressNominatim(val);
       setStartSuggestions([...local, ...osm]);
     }, 300);
@@ -41,11 +43,18 @@ function GoogleMapRouteBar({
 
   const handleEndQuery = val => {
     setEndQuery(val);
+    if (!val.trim()) {
+      setEndPoint(null);
+      setEndSuggestions([]);
+      return;
+    }
     clearTimeout(endTimer.current);
     if (val.trim().length < 2) { setEndSuggestions([]); return; }
     setIsSearchingEnd(true);
     endTimer.current = setTimeout(async () => {
-      const local = buildLocal(val, 25.151, 75.842);
+      const baseLat = startPoint?.lat || 25.18;
+      const baseLng = startPoint?.lng || 75.84;
+      const local = buildLocal(val, baseLat, baseLng);
       const osm   = await searchAddressNominatim(val);
       const combined = [...local];
       osm.forEach(o => { if (!combined.some(c => c.name.toLowerCase() === o.name.toLowerCase())) combined.push(o); });
@@ -66,16 +75,22 @@ function GoogleMapRouteBar({
     if (startPoint && onCalculateRoute) onCalculateRoute(startPoint, loc);
   };
 
+  const clearDestination = () => {
+    setEndPoint(null);
+    setEndQuery("");
+    setEndSuggestions([]);
+  };
+
   const useGPS = () => {
-    const fallback = { name: "Current GPS Location (Kota Center)", lat: 25.18, lng: 75.839 };
-    if (!navigator.geolocation) { setStartPoint(fallback); setStartQuery(fallback.name); return; }
+    if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       pos => {
         const loc = { name: "Current GPS Location", lat: pos.coords.latitude, lng: pos.coords.longitude };
         setStartPoint(loc); setStartQuery(loc.name);
         if (endPoint && onCalculateRoute) onCalculateRoute(loc, endPoint);
       },
-      () => { setStartPoint(fallback); setStartQuery(fallback.name); if (endPoint && onCalculateRoute) onCalculateRoute(fallback, endPoint); }
+      (err) => console.warn("GPS error:", err.message),
+      { enableHighAccuracy: true, timeout: 6000 }
     );
   };
 
@@ -114,7 +129,7 @@ function GoogleMapRouteBar({
             <div className="relative flex items-center">
               <input
                 type="text"
-                placeholder="Search position or station..."
+                placeholder="Detecting current position..."
                 value={startQuery}
                 onChange={e => handleStartQuery(e.target.value)}
                 className="w-full h-10 rounded-lg pl-3.5 pr-20 text-xs font-mono focus:outline-none"
@@ -136,25 +151,35 @@ function GoogleMapRouteBar({
             {startSuggestions.length > 0 && suggestionDropdown(startSuggestions, selectStart)}
           </div>
 
-          {/* Destination Point */}
+          {/* Destination Point (Empty by default) */}
           <div className="relative">
             <label className="text-[10px] font-mono font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5" style={{ color: "var(--ink-soft)" }}>
-              <Navigation className="w-3.5 h-3.5 text-amber-400" /> Destination Place
+              <Navigation className="w-3.5 h-3.5 text-amber-400" /> Destination Place (Select Location)
             </label>
             <div className="relative flex items-center">
               <input
                 type="text"
-                placeholder="Search Talwandi, Kota Junction..."
+                placeholder="Search or pick destination place on map..."
                 value={endQuery}
                 onChange={e => handleEndQuery(e.target.value)}
-                className="w-full h-10 rounded-lg px-3.5 text-xs font-mono focus:outline-none"
+                className="w-full h-10 rounded-lg pl-3.5 pr-10 text-xs font-mono focus:outline-none"
                 style={{
                   background: "var(--surface-sunken)",
-                  border: "1px solid var(--line)",
+                  border: endPoint ? "1px solid var(--amber-400, #f59e0b)" : "1px solid var(--line)",
                   color: "var(--ink)"
                 }}
               />
-              {isSearchingEnd && <Loader2 className="absolute right-3.5 w-4 h-4 text-emerald-400 animate-spin" />}
+              {isSearchingEnd ? (
+                <Loader2 className="absolute right-3.5 w-4 h-4 text-emerald-400 animate-spin" />
+              ) : endQuery ? (
+                <button
+                  type="button"
+                  onClick={clearDestination}
+                  className="absolute right-3 text-slate-400 hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              ) : null}
             </div>
             {endSuggestions.length > 0 && suggestionDropdown(endSuggestions, selectEnd)}
           </div>
@@ -177,17 +202,27 @@ function GoogleMapRouteBar({
 
           <button
             type="button"
-            onClick={() => onCalculateRoute && onCalculateRoute(startPoint, endPoint)}
-            className="btn-asphalt-primary h-10 flex items-center gap-2"
+            onClick={() => {
+              if (!endPoint) {
+                alert("Please select or search a destination place first.");
+                return;
+              }
+              onCalculateRoute && onCalculateRoute(startPoint, endPoint);
+            }}
+            className={`h-10 flex items-center gap-2 px-4 rounded-xl text-xs font-bold transition-all ${
+              endPoint
+                ? "btn-asphalt-primary"
+                : "bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700 opacity-70"
+            }`}
           >
             <Sparkles className="w-4 h-4" />
-            <span>Calculate AI Route</span>
+            <span>{endPoint ? "Calculate AI Route" : "Select Destination"}</span>
           </button>
         </div>
       </div>
 
       {/* Tabs & Stats */}
-      {routePlan && (
+      {routePlan && endPoint && (
         <div
           className="mt-4 pt-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3"
           style={{ borderTop: "1px solid var(--line)" }}
