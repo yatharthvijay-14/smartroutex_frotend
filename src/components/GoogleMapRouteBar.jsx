@@ -108,7 +108,7 @@ function GoogleMapRouteBar({
 
   const suggestionDropdown = (items, onSelect) => (
     <div
-      className="absolute top-full left-0 right-0 mt-2 rounded-xl z-50 max-h-64 overflow-y-auto shadow-2xl"
+      className="absolute top-full left-0 right-0 mt-2 rounded-xl z-[4000] max-h-72 overflow-y-auto shadow-2xl"
       style={{ background: "var(--surface)", border: "1px solid var(--line)" }}
     >
       {items.map(item => (
@@ -136,7 +136,7 @@ function GoogleMapRouteBar({
   );
 
   return (
-    <div className="asphalt-card p-5 mb-5 relative z-30">
+    <div className="asphalt-card p-5 mb-5 relative z-[3000]">
       <div className="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-4">
         {/* Search Inputs */}
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
