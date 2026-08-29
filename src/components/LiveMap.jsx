@@ -289,7 +289,9 @@ function LiveMap({
           {/* ⚠️ POTHOLE HAZARD PINS WITH PHOTO PREVIEW */}
           {potholeHazards &&
             potholeHazards.map((pothole, idx) => {
-              const photo = pothole.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop";
+              const photo = (pothole.imageUrl && !pothole.imageUrl.includes("1515162816999") && !pothole.imageUrl.includes("1584467735815"))
+                ? pothole.imageUrl
+                : "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop";
               return (
                 <Marker
                   key={`hazard-${pothole.id || idx}`}

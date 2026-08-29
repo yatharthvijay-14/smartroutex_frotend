@@ -641,7 +641,9 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {filteredPotholes.map((p, idx) => {
-                    const photoUrl = p.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop";
+                    const photoUrl = (p.imageUrl && !p.imageUrl.includes("1515162816999") && !p.imageUrl.includes("1584467735815"))
+                      ? p.imageUrl
+                      : "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop";
                     const isFixed  = p.status === "FIXED";
 
                     return (
