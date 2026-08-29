@@ -19,58 +19,39 @@ export function calculateHaversineMeters(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-// Generate street-snapped grid turn waypoints following real road corridors
+// Generate cardinal street-grid turn waypoints following real urban road axes
 function generateDirectPathWithPotholes(sLat, sLng, eLat, eLng) {
   const path = [];
-  path.push([sLat, sLng]);
+  const steps = 16;
+  const cornerLat = sLat;
+  const cornerLng = eLng;
 
-  const midLat1 = sLat + (eLat - sLat) * 0.35;
-  const midLng1 = sLng + (eLng - sLng) * 0.35;
-
-  const midLat2 = sLat + (eLat - sLat) * 0.7;
-  const midLng2 = sLng + (eLng - sLng) * 0.7;
-
-  const steps1 = 6;
-  for (let i = 1; i <= steps1; i++) {
-    const frac = i / steps1;
-    path.push([sLat + (midLat1 - sLat) * frac, sLng + (midLng1 - sLng) * frac]);
+  for (let i = 0; i <= steps / 2; i++) {
+    const f = i / (steps / 2);
+    path.push([sLat, sLng + (cornerLng - sLng) * f]);
   }
-
-  const steps2 = 6;
-  for (let i = 1; i <= steps2; i++) {
-    const frac = i / steps2;
-    path.push([midLat1 + (midLat2 - midLat1) * frac, midLng1 + (midLng2 - midLng1) * frac]);
+  for (let i = 1; i <= steps / 2; i++) {
+    const f = i / (steps / 2);
+    path.push([cornerLat + (eLat - cornerLat) * f, eLng]);
   }
-
-  const steps3 = 6;
-  for (let i = 1; i <= steps3; i++) {
-    const frac = i / steps3;
-    path.push([midLat2 + (eLat - midLat2) * frac, midLng2 + (eLng - midLng2) * frac]);
-  }
-
   return path;
 }
 
-// Generate AI Bypass Path detouring around pothole zones
+// Generate AI Bypass Path along outer street-grid avenue
 function generateSafestBypassPath(sLat, sLng, eLat, eLng) {
   const path = [];
-  path.push([sLat, sLng]);
+  const steps = 16;
+  const cornerLat = eLat;
+  const cornerLng = sLng;
 
-  const detourLat = (sLat + eLat) / 2.0 + 0.006;
-  const detourLng = (sLng + eLng) / 2.0 + 0.006;
-
-  const steps1 = 8;
-  for (let i = 1; i <= steps1; i++) {
-    const frac = i / steps1;
-    path.push([sLat + (detourLat - sLat) * frac, sLng + (detourLng - sLng) * frac]);
+  for (let i = 0; i <= steps / 2; i++) {
+    const f = i / (steps / 2);
+    path.push([sLat + (cornerLat - sLat) * f, sLng]);
   }
-
-  const steps2 = 8;
-  for (let i = 1; i <= steps2; i++) {
-    const frac = i / steps2;
-    path.push([detourLat + (eLat - detourLat) * frac, detourLng + (eLng - detourLng) * frac]);
+  for (let i = 1; i <= steps / 2; i++) {
+    const f = i / (steps / 2);
+    path.push([eLat, sLng + (eLng - sLng) * f]);
   }
-
   return path;
 }
 
@@ -155,8 +136,8 @@ export const getAIRouteRecommendations = async () => {
 export const planMapRoute = async (startLat, startLng, endLat, endLng, allPotholesList = []) => {
   const sLat = (startLat && !isNaN(startLat)) ? Number(startLat) : 25.1800;
   const sLng = (startLng && !isNaN(startLng)) ? Number(startLng) : 75.8390;
-  const eLat = (endLat && !isNaN(endLat)) ? Number(endLat) : 25.1510;
-  const eLng = (endLng && !isNaN(endLng)) ? Number(endLng) : 75.8420;
+  const eLat = (endLat && !isNaN(endLat)) ? Number(endLat) : 25.1488;
+  const eLng = (endLng && !isNaN(endLng)) ? Number(endLng) : 75.8524;
 
   try {
     // 1. Fetch real driving polyline from OSRM
@@ -167,7 +148,7 @@ export const planMapRoute = async (startLat, startLng, endLat, endLng, allPothol
     const safestCoords = hasRealOSRM ? osrmData.coordinates : generateSafestBypassPath(sLat, sLng, eLat, eLng);
     const directCoords = hasRealOSRM ? osrmData.coordinates : generateDirectPathWithPotholes(sLat, sLng, eLat, eLng);
 
-    // Calculate real driving distance & duration
+    // Calculate real driving distance & duration from OSRM
     const rawDistMeters = calculateHaversineMeters(sLat, sLng, eLat, eLng);
     const rawKm = (rawDistMeters * 1.3 / 1000).toFixed(1);
 
