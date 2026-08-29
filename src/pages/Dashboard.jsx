@@ -87,8 +87,8 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
   const [isRealGpsActive,    setIsRealGpsActive]    = useState(false);
   const [currentVehiclePos,  setCurrentVehiclePos]  = useState(null);
   const [gpsAccuracy,        setGpsAccuracy]        = useState(10);
-  const [dynamicEtaMinutes,  setDynamicEtaMinutes]  = useState(12);
-  const [dynamicDistanceText,setDynamicDistanceText]= useState("4.9 km");
+  const [dynamicEtaMinutes,  setDynamicEtaMinutes]  = useState(0);
+  const [dynamicDistanceText,setDynamicDistanceText]= useState("-- km");
   const [navProgressPercent, setNavProgressPercent] = useState(0);
   const [currentStepIndex,   setCurrentStepIndex]   = useState(0);
 
@@ -258,6 +258,11 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
     setRoutePlan(result);
     if (result?.evaluatedRoutes?.length > 0) {
       setSelectedCandidateRouteId(result.evaluatedRoutes[0].id);
+    }
+    if (result?.safestTime) {
+      const mins = parseInt(result.safestTime) || 0;
+      setDynamicEtaMinutes(mins);
+      setDynamicDistanceText(result.safestDistance || "-- km");
     }
     setCurrentVehiclePos([sLat, sLng]);
     setRouteInvalidEvent(null);

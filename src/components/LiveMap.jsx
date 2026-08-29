@@ -81,8 +81,8 @@ function LiveMap({
   isRealGpsActive = true,
   setIsRealGpsActive = null,
   gpsAccuracy = 10,
-  dynamicEtaMinutes = 12,
-  dynamicDistanceText = "4.9 km",
+  dynamicEtaMinutes = 0,
+  dynamicDistanceText = "-- km",
   onSimulateDrive = null,
   onOpenHudModal = null
 }) {
@@ -253,7 +253,7 @@ function LiveMap({
             <Marker position={vehiclePos} icon={createVehicleNavIcon(45)} zIndexOffset={1000}>
               <Popup>
                 <div className="p-1 font-bold text-xs text-blue-600 flex items-center gap-1">
-                  <span>▲</span> Real GPS Vehicle Position ({dynamicEtaMinutes} mins remaining)
+                  <span>▲</span> Vehicle Position {endPoint && dynamicEtaMinutes > 0 ? `(${dynamicEtaMinutes} mins to dest)` : "(GPS Active)"}
                 </div>
               </Popup>
             </Marker>
@@ -331,14 +331,14 @@ function LiveMap({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-3xl font-black text-amber-700">
-                {dynamicEtaMinutes} mins
+                {endPoint && dynamicEtaMinutes > 0 ? `${dynamicEtaMinutes} mins` : "-- mins"}
               </span>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
                 {isRealGpsActive ? "GPS Tracking Active" : "Sim Mode"}
               </span>
             </div>
             <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5 flex items-center gap-2">
-              <span>{dynamicDistanceText}</span> • <span>Destination: {endPoint?.name || "Target Place"}</span>
+              <span>{endPoint ? dynamicDistanceText : "Select destination to calculate ETA"}</span> • <span>Destination: {endPoint?.name || "Not Selected"}</span>
             </p>
           </div>
         </div>
