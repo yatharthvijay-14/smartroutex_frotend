@@ -94,9 +94,21 @@ function GoogleMapRouteBar({
     );
   };
 
+  const getPlaceIcon = (type = "") => {
+    const t = (type || "").toLowerCase();
+    if (t.includes("temple") || t.includes("mandir")) return "🛕";
+    if (t.includes("hospital") || t.includes("clinic") || t.includes("health")) return "🏥";
+    if (t.includes("cafe") || t.includes("coffee") || t.includes("tea")) return "☕";
+    if (t.includes("restaurant") || t.includes("food") || t.includes("dhaba")) return "🍴";
+    if (t.includes("coaching") || t.includes("allen") || t.includes("university") || t.includes("college") || t.includes("school")) return "🎓";
+    if (t.includes("mall") || t.includes("cinema") || t.includes("shop") || t.includes("market")) return "🛍️";
+    if (t.includes("park") || t.includes("garden") || t.includes("lake")) return "🌳";
+    return "📍";
+  };
+
   const suggestionDropdown = (items, onSelect) => (
     <div
-      className="absolute top-full left-0 right-0 mt-2 rounded-xl z-50 max-h-60 overflow-y-auto"
+      className="absolute top-full left-0 right-0 mt-2 rounded-xl z-50 max-h-64 overflow-y-auto shadow-2xl"
       style={{ background: "var(--surface)", border: "1px solid var(--line)" }}
     >
       {items.map(item => (
@@ -106,8 +118,16 @@ function GoogleMapRouteBar({
           className="p-3 cursor-pointer text-xs transition-colors border-b last:border-b-0 hover:bg-white/5"
           style={{ borderBottomColor: "var(--line)" }}
         >
-          <div className="font-bold font-heading flex items-center gap-2" style={{ color: "var(--ink)" }}>
-            <MapPin className="w-3.5 h-3.5 text-emerald-400" /> {item.name}
+          <div className="font-bold font-heading flex items-center justify-between gap-2" style={{ color: "var(--ink)" }}>
+            <span className="flex items-center gap-2">
+              <span className="text-sm">{getPlaceIcon(item.type || item.name)}</span>
+              <span>{item.name}</span>
+            </span>
+            {item.type && (
+              <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                {item.type}
+              </span>
+            )}
           </div>
           <div className="text-[10px] font-mono truncate mt-0.5" style={{ color: "var(--ink-soft)" }}>{item.displayName}</div>
         </div>
