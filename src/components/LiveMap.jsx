@@ -120,7 +120,7 @@ function LiveMap({
   const vehiclePos = currentVehiclePos || (startPoint ? [startPoint.lat, startPoint.lng] : null);
 
   return (
-    <div className="relative w-full h-[640px] rounded-3xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-950 font-sans flex flex-col">
+    <div className="relative w-full h-[750px] rounded-3xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-950 font-sans flex flex-col">
       {/* 📡 Live GPS Status Top Badge */}
       <div className="absolute top-4 left-4 z-[1000] flex items-center gap-2">
         <button
@@ -195,8 +195,10 @@ function LiveMap({
           center={[centerLat, centerLng]}
           zoom={15}
           style={{ height: "100%", width: "100%" }}
-          zoomControl={false}
-          scrollWheelZoom={true}
+          zoomControl={true}
+          scrollWheelZoom={false}
+          doubleClickZoom={true}
+          touchZoom={true}
         >
           {mapType === "SATELLITE" ? (
             <>
