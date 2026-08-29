@@ -125,7 +125,7 @@ function AuthPage({ onLoginSuccess }) {
                   : { color: "#9a988f", background: "transparent", border: "1px solid transparent" }
               }
             >
-              <LogIn className="w-3.5 h-3.5" /> ➔] Sign In
+              <LogIn className="w-3.5 h-3.5" /> Sign In
             </button>
             <button
               type="button"
@@ -137,7 +137,7 @@ function AuthPage({ onLoginSuccess }) {
                   : { color: "#9a988f", background: "transparent", border: "1px solid transparent" }
               }
             >
-              <UserPlus className="w-3.5 h-3.5" /> + REGISTER
+              <UserPlus className="w-3.5 h-3.5" /> Register
             </button>
           </div>
 
