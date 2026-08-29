@@ -641,9 +641,9 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {filteredPotholes.map((p, idx) => {
-                    const photoUrl = (p.imageUrl && !p.imageUrl.includes("1515162816999") && !p.imageUrl.includes("1584467735815"))
-                      ? p.imageUrl
-                      : "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop";
+                    const fallbackList = ["/potholes/pothole1.png", "/potholes/pothole2.png", "/potholes/pothole3.png"];
+                    const isMaskOrInvalid = !p.imageUrl || p.imageUrl.includes("1515162816999") || p.imageUrl.includes("1584467735815") || p.imageUrl.includes("unsplash.com");
+                    const photoUrl = isMaskOrInvalid ? fallbackList[idx % fallbackList.length] : p.imageUrl;
                     const isFixed  = p.status === "FIXED";
 
                     return (
