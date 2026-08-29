@@ -244,10 +244,14 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
   const handleCalculateRoute = useCallback(async (sPoint, ePoint, customPool) => {
     const startP = sPoint || startPoint;
     const endP   = ePoint || endPoint;
-    const sLat = startP?.lat || 25.1800;
-    const sLng = startP?.lng || 75.8390;
-    const eLat = endP?.lat   || 25.1510;
-    const eLng = endP?.lng   || 75.8420;
+
+    // Don't calculate if we don't have valid start or end location
+    if (!startP?.lat || !startP?.lng || !endP?.lat || !endP?.lng) return;
+
+    const sLat = startP.lat;
+    const sLng = startP.lng;
+    const eLat = endP.lat;
+    const eLng = endP.lng;
     const pool = customPool || potholes;
 
     const result = await planMapRoute(sLat, sLng, eLat, eLng, pool);

@@ -28,7 +28,7 @@ export const reverseGeocodeLocation = async (lat, lng) => {
 export const detectUserPhysicalLocation = () =>
   new Promise((resolve) => {
     if (!("geolocation" in navigator)) {
-      resolve({ name: "Kota City Center", displayName: "Kota, Rajasthan, India", lat: 25.18, lng: 75.839 });
+      resolve(null);
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -36,7 +36,7 @@ export const detectUserPhysicalLocation = () =>
         const loc = await reverseGeocodeLocation(pos.coords.latitude, pos.coords.longitude);
         resolve(loc);
       },
-      () => resolve({ name: "Kota City Center", displayName: "Kota, Rajasthan, India", lat: 25.18, lng: 75.839 }),
+      () => resolve(null), // Don't default to any city — let the UI show empty state
       { enableHighAccuracy: true, timeout: 6000, maximumAge: 2000 }
     );
   });
@@ -63,7 +63,7 @@ export const searchPhoton = async (query) => {
       const name = p.name || p.street || p.city || query;
       const parts = [p.street, p.city, p.state, p.country].filter(Boolean);
       const displayName = parts.length ? parts.join(", ") : (p.name || name);
-      const [lng, lat] = f.geometry?.coordinates || [75.839, 25.18];
+      const [lng, lat] = f.geometry?.coordinates || [0, 0];
       return {
         id: `photon-${i}-${name}`,
         name,
@@ -85,7 +85,7 @@ export const searchAddressNominatim = async (query) => {
   if (!query || query.trim().length < 2) return [];
   try {
     const res = await axios.get("https://nominatim.openstreetmap.org/search", {
-      params: { q: `${query.trim()}, India`, format: "json", addressdetails: 1, limit: 6 },
+      params: { q: query.trim(), format: "json", addressdetails: 1, limit: 6 },
       headers: { "User-Agent": "SmartRouteX/2.0" },
       timeout: 5000
     });
