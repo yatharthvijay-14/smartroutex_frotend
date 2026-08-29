@@ -116,78 +116,90 @@ function MyReports({ potholes = [], onDataChanged }) {
             const photo      = p.imageUrl;
             const isHigh     = p.severity === "HIGH";
 
-            return (
-              <div
-                key={id}
-                className="rounded-lg overflow-hidden transition-all"
-                style={{
-                  background: isFixed ? "var(--safe-bg)" : "var(--surface-sunken)",
-                  border: `1px solid ${isFixed ? "var(--safe)" : "var(--line)"}`,
-                }}
-              >
-                {/* Card header row */}
-                <div className="flex items-center gap-3 p-3.5">
-                  <span className={isFixed ? "dot-glow-safe" : isHigh ? "dot-glow-critical" : "dot-glow-warn"} />
+                    const fallbackList = ["/potholes/pothole1.png", "/potholes/pothole2.png", "/potholes/pothole3.png"];
+                    const isInvalid = !photo || photo.includes("unsplash") || photo.includes("1515162816999") || photo.includes("1584467735815");
+                    const validPhoto = isInvalid ? fallbackList[idx % fallbackList.length] : photo;
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3
-                        className="text-xs font-bold font-heading"
+                    return (
+                      <div
+                        key={id}
+                        className="rounded-lg overflow-hidden transition-all"
                         style={{
-                          color: isFixed ? "var(--ink-soft)" : "var(--ink)",
-                          textDecoration: isFixed ? "line-through" : "none"
+                          background: isFixed ? "var(--safe-bg)" : "var(--surface-sunken)",
+                          border: `1px solid ${isFixed ? "var(--safe)" : "var(--line)"}`,
                         }}
                       >
-                        {p.roadName || "Unnamed Corridor"}
-                      </h3>
-                      <span className={isFixed ? "badge-dashed-safe text-[9px] py-0 px-1.5" : isHigh ? "badge-dashed-critical text-[9px] py-0 px-1.5" : "badge-dashed-warn text-[9px] py-0 px-1.5"}>
-                        {isFixed ? "Fixed" : p.severity || "Medium"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 mt-1 font-mono text-[11px]" style={{ color: "var(--ink-soft)" }}>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-amber-400" /> {p.reportedAt || "Just now"}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Ruler className="w-3 h-3 text-emerald-400" /> {p.depth || "N/A"}
-                      </span>
-                      {p.latitude && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-rose-400" />
-                          <span>{p.latitude?.toFixed(4)}, {p.longitude?.toFixed(4)}</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                        {/* Card header row */}
+                        <div className="flex items-center gap-3 p-3.5">
+                          <span className={isFixed ? "dot-glow-safe" : isHigh ? "dot-glow-critical" : "dot-glow-warn"} />
 
-                  <button
-                    onClick={() => setExpandedId(isExpanded ? null : id)}
-                    className="p-1.5 rounded-lg transition-colors cursor-pointer"
-                    style={{ background: "var(--surface)", border: "1px solid var(--line)", color: "var(--ink-soft)" }}
-                  >
-                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </button>
-                </div>
-
-                {/* Expanded details */}
-                {isExpanded && (
-                  <div
-                    className="px-4 pb-4 pt-3 space-y-3 font-mono"
-                    style={{ borderTop: "1px solid var(--line)" }}
-                  >
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest mb-2 flex items-center gap-1.5" style={{ color: "var(--ink-soft)" }}>
-                        <ImageIcon className="w-3 h-3 text-emerald-400" /> Photo Proof
-                      </p>
-                      {photo ? (
-                        <div className="flex items-start gap-3">
-                          <div
-                            onClick={() => setLightboxImg(photo)}
-                            className="relative h-28 w-40 rounded-lg overflow-hidden cursor-pointer group shrink-0"
-                            style={{ border: "1px solid var(--line)" }}
-                          >
-                            <img src={photo} alt="Pothole proof" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3
+                                className="text-xs font-bold font-heading"
+                                style={{
+                                  color: isFixed ? "var(--ink-soft)" : "var(--ink)",
+                                  textDecoration: isFixed ? "line-through" : "none"
+                                }}
+                              >
+                                {p.roadName || "Unnamed Corridor"}
+                              </h3>
+                              <span className={isFixed ? "badge-dashed-safe text-[9px] py-0 px-1.5" : isHigh ? "badge-dashed-critical text-[9px] py-0 px-1.5" : "badge-dashed-warn text-[9px] py-0 px-1.5"}>
+                                {isFixed ? "Fixed" : p.severity || "Medium"}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 mt-1 font-mono text-[11px]" style={{ color: "var(--ink-soft)" }}>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-amber-400" /> {p.reportedAt || "Just now"}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Ruler className="w-3 h-3 text-emerald-400" /> {p.depth || "N/A"}
+                              </span>
+                              {p.latitude && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3 text-rose-400" />
+                                  <span>{p.latitude?.toFixed(4)}, {p.longitude?.toFixed(4)}</span>
+                                </span>
+                              )}
+                            </div>
                           </div>
+
+                          <button
+                            onClick={() => setExpandedId(isExpanded ? null : id)}
+                            className="p-1.5 rounded-lg transition-colors cursor-pointer"
+                            style={{ background: "var(--surface)", border: "1px solid var(--line)", color: "var(--ink-soft)" }}
+                          >
+                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </button>
+                        </div>
+
+                        {/* Expanded details */}
+                        {isExpanded && (
+                          <div
+                            className="px-4 pb-4 pt-3 space-y-3 font-mono"
+                            style={{ borderTop: "1px solid var(--line)" }}
+                          >
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-widest mb-2 flex items-center gap-1.5" style={{ color: "var(--ink-soft)" }}>
+                                <ImageIcon className="w-3 h-3 text-emerald-400" /> Photo Proof
+                              </p>
+                              {validPhoto ? (
+                                <div className="flex items-start gap-3">
+                                  <div
+                                    onClick={() => setLightboxImg(validPhoto)}
+                                    className="relative h-28 w-40 rounded-lg overflow-hidden cursor-pointer group shrink-0"
+                                    style={{ border: "1px solid var(--line)" }}
+                                  >
+                                    <img
+                                      src={validPhoto}
+                                      alt="Pothole proof"
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = fallbackList[idx % fallbackList.length];
+                                      }}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                    />
+                                  </div>
                           <button
                             disabled={isLoading}
                             onClick={() => setConfirm({ type: "removeImage", id: p.id, label: `Remove photo from "${p.roadName}"?` })}

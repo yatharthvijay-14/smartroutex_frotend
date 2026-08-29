@@ -44,7 +44,9 @@ function Alerts({ potholes = [], onOpenReportModal }) {
           potholes.map((pothole, index) => {
             const isHigh  = pothole.severity === "HIGH";
             const isFixed = pothole.status === "FIXED";
-            const photo   = pothole.imageUrl;
+            const fallbackList = ["/potholes/pothole1.png", "/potholes/pothole2.png", "/potholes/pothole3.png"];
+            const isInvalid = !pothole.imageUrl || pothole.imageUrl.includes("unsplash") || pothole.imageUrl.includes("1515162816999") || pothole.imageUrl.includes("1584467735815");
+            const photo = isInvalid ? fallbackList[index % fallbackList.length] : pothole.imageUrl;
 
             return (
               <div
@@ -98,6 +100,10 @@ function Alerts({ potholes = [], onOpenReportModal }) {
                     <img
                       src={photo}
                       alt="Pothole proof"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = fallbackList[index % fallbackList.length];
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div
