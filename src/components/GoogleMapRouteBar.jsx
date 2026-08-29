@@ -83,13 +83,21 @@ function GoogleMapRouteBar({
 
   const useGPS = () => {
     if (!navigator.geolocation) return;
+    setStartQuery("Detecting GPS position...");
     navigator.geolocation.getCurrentPosition(
-      pos => {
-        const loc = { name: "Current GPS Location", lat: pos.coords.latitude, lng: pos.coords.longitude };
+      async pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const geoLoc = await reverseGeocodeLocation(lat, lng);
+        const name = geoLoc?.name ? `GPS: ${geoLoc.name}` : `Current Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+        const loc = { name, displayName: geoLoc?.displayName || name, lat, lng };
         setStartPoint(loc); setStartQuery(loc.name);
         if (endPoint && onCalculateRoute) onCalculateRoute(loc, endPoint);
       },
-      (err) => console.warn("GPS error:", err.message),
+      (err) => {
+        console.warn("GPS error:", err.message);
+        setStartQuery(startPoint?.name || "Current Location");
+      },
       { enableHighAccuracy: true, timeout: 6000 }
     );
   };

@@ -1,18 +1,45 @@
 import axios from "axios";
 
+// Helper: Ensure text is in English script and strip non-English/Devanagari characters if any
+function ensureEnglish(text) {
+  if (!text) return "";
+  const containsHindi = /[\u0900-\u097F]/.test(text);
+  if (containsHindi) {
+    const cleaned = text.replace(/[\u0900-\u097F]+/g, "").replace(/\s+,/g, ",").replace(/,\s*,/g, ",").trim();
+    if (cleaned && cleaned.length > 2) {
+      return cleaned.replace(/^,\s*/, "").replace(/,\s*$/, "");
+    }
+  }
+  return text;
+}
+
 // ─── Reverse Geocode ──────────────────────────────────────────────────────────
 export const reverseGeocodeLocation = async (lat, lng) => {
   try {
     const res = await axios.get("https://nominatim.openstreetmap.org/reverse", {
-      params: { lat, lon: lng, format: "json", addressdetails: 1 },
-      headers: { "User-Agent": "SmartRouteX/2.0 (smartroutex.app)" },
+      params: {
+        lat,
+        lon: lng,
+        format: "json",
+        addressdetails: 1,
+        "accept-language": "en-US,en;q=0.9"
+      },
+      headers: {
+        "User-Agent": "SmartRouteX/2.0 (smartroutex.app)",
+        "Accept-Language": "en-US,en;q=0.9"
+      },
       timeout: 5000
     });
+
     if (res.data?.display_name) {
       const addr = res.data.address || {};
-      const name = addr.road || addr.suburb || addr.neighbourhood
+      let name = addr.road || addr.suburb || addr.neighbourhood
                 || addr.city_district || addr.city || res.data.display_name.split(",")[0];
-      return { name, displayName: res.data.display_name, lat, lng };
+
+      name = ensureEnglish(name) || `Location (${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)})`;
+      let displayName = ensureEnglish(res.data.display_name) || name;
+
+      return { name, displayName, lat, lng };
     }
   } catch (err) {
     console.warn("Reverse geocode warning:", err.message);
@@ -42,8 +69,6 @@ export const detectUserPhysicalLocation = () =>
   });
 
 // ─── Photon API — instant prefix autocomplete (like Google Places) ────────────
-// Powered by Komoot's Photon: https://photon.komoot.io/
-// Returns results instantly as user types, even for partial words like "tal"
 export const searchPhoton = async (query) => {
   if (!query || query.trim().length < 1) return [];
   try {
@@ -60,8 +85,8 @@ export const searchPhoton = async (query) => {
 
     return res.data.features.map((f, i) => {
       const p = f.properties || {};
-      const name = p.name || p.street || p.city || query;
-      const parts = [p.street, p.city, p.state, p.country].filter(Boolean);
+      const name = ensureEnglish(p.name || p.street || p.city || query);
+      const parts = [p.street, p.city, p.state, p.country].filter(Boolean).map(ensureEnglish);
       const displayName = parts.length ? parts.join(", ") : (p.name || name);
       const [lng, lat] = f.geometry?.coordinates || [75.839, 25.18];
       return {
@@ -85,15 +110,24 @@ export const searchAddressNominatim = async (query) => {
   if (!query || query.trim().length < 2) return [];
   try {
     const res = await axios.get("https://nominatim.openstreetmap.org/search", {
-      params: { q: `${query.trim()}, India`, format: "json", addressdetails: 1, limit: 6 },
-      headers: { "User-Agent": "SmartRouteX/2.0" },
+      params: {
+        q: `${query.trim()}, India`,
+        format: "json",
+        addressdetails: 1,
+        limit: 6,
+        "accept-language": "en-US,en;q=0.9"
+      },
+      headers: {
+        "User-Agent": "SmartRouteX/2.0",
+        "Accept-Language": "en-US,en;q=0.9"
+      },
       timeout: 5000
     });
     if (!res.data?.length) return [];
     return res.data.map((item) => ({
       id: `nom-${item.place_id}`,
-      name: item.name || item.display_name.split(",")[0],
-      displayName: item.display_name,
+      name: ensureEnglish(item.name || item.display_name.split(",")[0]),
+      displayName: ensureEnglish(item.display_name),
       lat: parseFloat(item.lat),
       lng: parseFloat(item.lon),
       type: item.type || item.class,
