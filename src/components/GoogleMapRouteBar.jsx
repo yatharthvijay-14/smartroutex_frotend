@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { searchAddressNominatim } from "../services/geocodingService";
+import { searchAllLocations, reverseGeocodeLocation } from "../services/geocodingService";
 import { MapPin, Navigation, Crosshair, Map, Sparkles, ShieldCheck, AlertTriangle, Loader2, X } from "lucide-react";
 
 function GoogleMapRouteBar({
@@ -31,14 +31,11 @@ function GoogleMapRouteBar({
   const handleStartQuery = val => {
     setStartQuery(val);
     clearTimeout(startTimer.current);
-    if (val.trim().length < 2) { setStartSuggestions([]); return; }
+    if (val.trim().length < 1) { setStartSuggestions([]); return; }
     startTimer.current = setTimeout(async () => {
-      const baseLat = startPoint?.lat || 25.18;
-      const baseLng = startPoint?.lng || 75.84;
-      const local = buildLocal(val, baseLat, baseLng);
-      const osm   = await searchAddressNominatim(val);
-      setStartSuggestions([...local, ...osm]);
-    }, 300);
+      const results = await searchAllLocations(val);
+      setStartSuggestions(results);
+    }, 200);
   };
 
   const handleEndQuery = val => {
@@ -49,18 +46,13 @@ function GoogleMapRouteBar({
       return;
     }
     clearTimeout(endTimer.current);
-    if (val.trim().length < 2) { setEndSuggestions([]); return; }
+    if (val.trim().length < 1) { setEndSuggestions([]); return; }
     setIsSearchingEnd(true);
     endTimer.current = setTimeout(async () => {
-      const baseLat = startPoint?.lat || 25.18;
-      const baseLng = startPoint?.lng || 75.84;
-      const local = buildLocal(val, baseLat, baseLng);
-      const osm   = await searchAddressNominatim(val);
-      const combined = [...local];
-      osm.forEach(o => { if (!combined.some(c => c.name.toLowerCase() === o.name.toLowerCase())) combined.push(o); });
-      setEndSuggestions(combined);
+      const results = await searchAllLocations(val);
+      setEndSuggestions(results);
       setIsSearchingEnd(false);
-    }, 300);
+    }, 200);
   };
 
   const selectStart = item => {

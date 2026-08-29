@@ -13,6 +13,48 @@ function ensureEnglish(text) {
   return text;
 }
 
+// ─── Comprehensive Local Database of Kota Locations (Small & Big) ────────────
+export const KOTA_LOCATIONS = [
+  { id: "kota-1", name: "Talwandi Main Road", displayName: "Talwandi Main Road, Kota, Rajasthan", lat: 25.1510, lng: 75.8420, type: "area" },
+  { id: "kota-2", name: "Talwandi Circle", displayName: "Talwandi Circle, Sector A, Kota", lat: 25.1520, lng: 75.8430, type: "junction" },
+  { id: "kota-3", name: "Aerodrome Circle", displayName: "Aerodrome Circle, Jhalawar Road, Kota", lat: 25.1800, lng: 75.8390, type: "circle" },
+  { id: "kota-4", name: "Jhalawar Road Expressway", displayName: "Jhalawar Road Corridor, Kota", lat: 25.2138, lng: 75.8648, type: "highway" },
+  { id: "kota-5", name: "Vigyan Nagar Flyover", displayName: "Vigyan Nagar Flyover, Kota", lat: 25.1810, lng: 75.8390, type: "flyover" },
+  { id: "kota-6", name: "Vigyan Nagar Main Market", displayName: "Vigyan Nagar Sector 1-4, Kota", lat: 25.1780, lng: 75.8420, type: "market" },
+  { id: "kota-7", name: "Mahaveer Nagar 1", displayName: "Mahaveer Nagar Extension 1, Kota", lat: 25.1700, lng: 75.8500, type: "colony" },
+  { id: "kota-8", name: "Mahaveer Nagar 2", displayName: "Mahaveer Nagar Sector 2, Kota", lat: 25.1680, lng: 75.8530, type: "colony" },
+  { id: "kota-9", name: "Mahaveer Nagar 3", displayName: "Mahaveer Nagar Sector 3, Kota", lat: 25.1650, lng: 75.8550, type: "colony" },
+  { id: "kota-10", name: "Rajeev Gandhi Nagar", displayName: "Rajeev Gandhi Nagar Coaching Hub, Kota", lat: 25.1600, lng: 75.8700, type: "coaching_hub" },
+  { id: "kota-11", name: "Allen Samyak (Landmark City)", displayName: "Landmark City, Kunhari, Kota", lat: 25.2150, lng: 75.8320, type: "coaching" },
+  { id: "kota-12", name: "Allen Supath (Naya Nohar)", displayName: "Naya Nohar, Baran Road, Kota", lat: 25.1610, lng: 75.8690, type: "coaching" },
+  { id: "kota-13", name: "Allen Sangyan", displayName: "Rajeev Gandhi Nagar, Kota", lat: 25.1590, lng: 75.8680, type: "coaching" },
+  { id: "kota-14", name: "Allen Sankalp", displayName: "Indraprastha Industrial Area, Kota", lat: 25.1720, lng: 75.8490, type: "coaching" },
+  { id: "kota-15", name: "Dadabari Choraaha", displayName: "Dadabari Main Choraaha, Kota", lat: 25.1620, lng: 75.8330, type: "junction" },
+  { id: "kota-16", name: "Dadabari Main Market", displayName: "Dadabari Sector 1-7, Kota", lat: 25.1610, lng: 75.8340, type: "market" },
+  { id: "kota-17", name: "Kota Junction Railway Station", displayName: "Kota Railway Station Road, Station Area", lat: 25.2180, lng: 75.8620, type: "station" },
+  { id: "kota-18", name: "Nayapura Heritage Gate", displayName: "Nayapura Gate & Heritage Road, Kota", lat: 25.1820, lng: 75.8400, type: "heritage" },
+  { id: "kota-19", name: "Nayapura Bus Stand", displayName: "Interstate Bus Terminal, Nayapura, Kota", lat: 25.1850, lng: 75.8410, type: "bus_stand" },
+  { id: "kota-20", name: "Seven Wonders Park", displayName: "Kishore Sagar Lake Promenade, Kota", lat: 25.1730, lng: 75.8410, type: "park" },
+  { id: "kota-21", name: "Kishore Sagar Lake", displayName: "Jagmandir Palace & Lake, Kota", lat: 25.1750, lng: 75.8430, type: "lake" },
+  { id: "kota-22", name: "Kota Thermal Power Station", displayName: "Thermal Power Colony, Sakatpura, Kota", lat: 25.1880, lng: 75.8150, type: "landmark" },
+  { id: "kota-23", name: "Kota Government Medical College", displayName: "New Medical College Hospital, Rangbari Road, Kota", lat: 25.1480, lng: 75.8280, type: "hospital" },
+  { id: "kota-24", name: "Rangbari Road", displayName: "Rangbari Main Corridor, Kota", lat: 25.1490, lng: 75.8310, type: "road" },
+  { id: "kota-25", name: "Rangbari Circle", displayName: "Rangbari Circle, Kota", lat: 25.1500, lng: 75.8320, type: "junction" },
+  { id: "kota-26", name: "Gumanpura Market", displayName: "Shopping Centre & Gumanpura Market, Kota", lat: 25.1790, lng: 75.8480, type: "market" },
+  { id: "kota-27", name: "Rampura Main Bazaar", displayName: "Old City Rampura, Kota", lat: 25.1860, lng: 75.8450, type: "market" },
+  { id: "kota-28", name: "Chawani Choraaha", displayName: "Chawani Circle, Kota", lat: 25.1760, lng: 75.8510, type: "junction" },
+  { id: "kota-29", name: "Borkheda Flyover", displayName: "Baran Road, Borkheda, Kota", lat: 25.1920, lng: 75.8810, type: "flyover" },
+  { id: "kota-30", name: "Kunhari Choraaha", displayName: "Bundi Road, Kunhari, Kota", lat: 25.2050, lng: 75.8350, type: "junction" },
+  { id: "kota-31", name: "Sakatpura Dam", displayName: "Kota Barrage Dam & Sakatpura, Kota", lat: 25.1950, lng: 75.8100, type: "dam" },
+  { id: "kota-32", name: "Shrinath Puram Stadium", displayName: "Shrinath Puram Sports Complex, Kota", lat: 25.1580, lng: 75.8250, type: "stadium" },
+  { id: "kota-33", name: "RK Puram Sector A/B", displayName: "Radhakrishnan Puram, Kota", lat: 25.1530, lng: 75.8210, type: "colony" },
+  { id: "kota-34", name: "Indraprastha Industrial Area", displayName: "IPIA Sector 1-5, Kota", lat: 25.1420, lng: 75.8750, type: "industrial" },
+  { id: "kota-35", name: "DCM Circle", displayName: "DCM Road Junction, Kota", lat: 25.1400, lng: 75.8700, type: "junction" },
+  { id: "kota-36", name: "Ranpur Industrial Zone", displayName: "RIICO Industrial Area, Ranpur, Kota", lat: 25.0950, lng: 75.8550, type: "industrial" },
+  { id: "kota-37", name: "Engineering College (RTU Kota)", displayName: "Rajasthan Technical University Campus, Rawatbhata Road", lat: 25.1410, lng: 75.8050, type: "university" },
+  { id: "kota-38", name: "City Mall Kota", displayName: "Jhalawar Road City Mall, Kota", lat: 25.1630, lng: 75.8520, type: "mall" }
+];
+
 // ─── Reverse Geocode ──────────────────────────────────────────────────────────
 export const reverseGeocodeLocation = async (lat, lng) => {
   try {
@@ -68,13 +110,13 @@ export const detectUserPhysicalLocation = () =>
     );
   });
 
-// ─── Photon API — instant prefix autocomplete (like Google Places) ────────────
+// ─── Photon API — instant prefix autocomplete ─────────────────────────────────
 export const searchPhoton = async (query) => {
   if (!query || query.trim().length < 1) return [];
   try {
     const res = await axios.get("https://photon.komoot.io/api/", {
       params: {
-        q: query.trim(),
+        q: `${query.trim()} Kota India`,
         limit: 8,
         lang: "en"
       },
@@ -105,16 +147,16 @@ export const searchPhoton = async (query) => {
   }
 };
 
-// ─── Nominatim Search (fallback) ──────────────────────────────────────────────
+// ─── Nominatim Search (OpenStreetMap Full Search API) ──────────────────────────
 export const searchAddressNominatim = async (query) => {
-  if (!query || query.trim().length < 2) return [];
+  if (!query || query.trim().length < 1) return [];
   try {
     const res = await axios.get("https://nominatim.openstreetmap.org/search", {
       params: {
-        q: `${query.trim()}, India`,
+        q: `${query.trim()}, Kota, Rajasthan, India`,
         format: "json",
         addressdetails: 1,
-        limit: 6,
+        limit: 10,
         "accept-language": "en-US,en;q=0.9"
       },
       headers: {
@@ -137,6 +179,42 @@ export const searchAddressNominatim = async (query) => {
     console.warn("Nominatim search error:", err.message);
     return [];
   }
+};
+
+// ─── Unified All-Location Search Engine (Small & Big Locations) ───────────────
+export const searchAllLocations = async (query) => {
+  if (!query || !query.trim()) return [];
+  const q = query.trim().toLowerCase();
+
+  // 1. Local Database Search (0ms instant response)
+  const localMatches = KOTA_LOCATIONS.filter(item =>
+    item.name.toLowerCase().includes(q) ||
+    item.displayName.toLowerCase().includes(q)
+  );
+
+  // 2. Fetch online places via Nominatim and Photon APIs
+  let onlineResults = [];
+  try {
+    const [nom, pho] = await Promise.allSettled([
+      searchAddressNominatim(query),
+      searchPhoton(query)
+    ]);
+    const nomData = nom.status === "fulfilled" ? nom.value : [];
+    const phoData = pho.status === "fulfilled" ? pho.value : [];
+    onlineResults = [...nomData, ...phoData];
+  } catch (_) {}
+
+  // 3. Combine and Deduplicate
+  const combined = [...localMatches];
+  onlineResults.forEach(item => {
+    const isDup = combined.some(c =>
+      c.name.toLowerCase() === item.name.toLowerCase() ||
+      (Math.abs(c.lat - item.lat) < 0.0015 && Math.abs(c.lng - item.lng) < 0.0015)
+    );
+    if (!isDup) combined.push(item);
+  });
+
+  return combined;
 };
 
 // ─── OSRM Driving Route Engine ────────────────────────────────────────────────
