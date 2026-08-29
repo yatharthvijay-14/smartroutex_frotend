@@ -65,21 +65,6 @@ function ChangeMapView({ center, zoom = 15 }) {
   return null;
 }
 
-function FitRouteBounds({ path }) {
-  const map = useMap();
-  useEffect(() => {
-    if (path && path.length >= 2) {
-      try {
-        const bounds = L.latLngBounds(path);
-        if (bounds.isValid()) {
-          map.fitBounds(bounds, { padding: [60, 60], animate: true });
-        }
-      } catch (_) {}
-    }
-  }, [path, map]);
-  return null;
-}
-
 function LiveMap({
   roads = [],
   selectedRoad = null,
@@ -103,8 +88,10 @@ function LiveMap({
 }) {
   const [mapType, setMapType] = useState("SATELLITE"); // Satellite view by default
 
-  const centerLat = currentVehiclePos?.[0] || endPoint?.lat || startPoint?.lat || 25.18;
-  const centerLng = currentVehiclePos?.[1] || endPoint?.lng || startPoint?.lng || 75.84;
+  const hasLocation = !!(currentVehiclePos || startPoint || endPoint);
+  const centerLat = currentVehiclePos?.[0] || startPoint?.lat || endPoint?.lat || 20.5937;
+  const centerLng = currentVehiclePos?.[1] || startPoint?.lng || endPoint?.lng || 78.9629;
+  const mapZoom = hasLocation ? 15 : 5;
 
   const handleMapClick = (latlng) => {
     if (!startPoint || (startPoint && endPoint)) {
@@ -135,7 +122,7 @@ function LiveMap({
   const vehiclePos = currentVehiclePos || (startPoint ? [startPoint.lat, startPoint.lng] : null);
 
   return (
-    <div className="relative w-full h-[750px] rounded-3xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-950 font-sans flex flex-col">
+    <div className="relative w-full h-[640px] rounded-3xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-950 font-sans flex flex-col">
       {/* 📡 Live GPS Status Top Badge */}
       <div className="absolute top-4 left-4 z-[1000] flex items-center gap-2">
         <button
@@ -208,14 +195,10 @@ function LiveMap({
       <div className="relative w-full h-full z-0">
         <MapContainer
           center={[centerLat, centerLng]}
-          zoom={15}
+          zoom={mapZoom}
           style={{ height: "100%", width: "100%" }}
-          zoomControl={true}
-          scrollWheelZoom={false}
-          doubleClickZoom={true}
-          touchZoom="center"
-          dragging={true}
-          bounceAtZoomLimits={true}
+          zoomControl={false}
+          scrollWheelZoom={true}
         >
           {mapType === "SATELLITE" ? (
             <>
@@ -235,7 +218,6 @@ function LiveMap({
           )}
 
           <MapClickHandler onMapClick={handleMapClick} />
-          <FitRouteBounds path={safestPath} />
 
           {(vehiclePos || endPoint || selectedRoad) && (
             <ChangeMapView
@@ -348,29 +330,25 @@ function LiveMap({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl sm:text-3xl font-black text-amber-700">
-                {endPoint ? `${dynamicEtaMinutes} mins` : "Select Destination"}
+              <span className="text-3xl font-black text-amber-700">
+                {dynamicEtaMinutes} mins
               </span>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
                 {isRealGpsActive ? "GPS Tracking Active" : "Sim Mode"}
               </span>
             </div>
             <p className="text-xs text-slate-500 font-semibold m-0 mt-0.5 flex items-center gap-2">
-              {endPoint ? (
-                <><span>{dynamicDistanceText}</span> • <span>Destination: {endPoint.name}</span></>
-              ) : (
-                <span>Search or pick a destination place on map to calculate ETA &amp; safest route</span>
-              )}
+              <span>{dynamicDistanceText}</span> • <span>Destination: {endPoint?.name || "Target Place"}</span>
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
-          {endPoint && !isRealGpsActive && onSimulateDrive && (
+          {!isRealGpsActive && onSimulateDrive && (
             <button
               onClick={onSimulateDrive}
-              className="px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-xl transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-xl transition-all flex items-center gap-1.5"
             >
               <span>▶</span> Test Move
             </button>

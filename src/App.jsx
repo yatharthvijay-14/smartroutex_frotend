@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, createContext, useContext, Component } from "react";
+import React, { useState, useCallback, createContext, useContext, Component } from "react";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
@@ -7,7 +7,6 @@ import ReportPotholeModal from "./components/ReportPotholeModal";
 import AuthModal from "./components/AuthModal";
 import { useAuth } from "./context/AuthContext";
 import { ToastContainer, useToasts } from "./components/ToastSystem";
-import { loadGoogleMapsScript } from "./services/googleMapsService";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
 // ─── React Error Boundary Fallback ────────────────────────────────────────────
@@ -80,11 +79,8 @@ function MainAppLayout() {
     return localStorage.getItem("smartroutex_notifs") !== "false";
   });
 
+  // Toast system (9.3 real-time alerts)
   const { toasts, addToast, dismiss, dismissAll } = useToasts();
-
-  useEffect(() => {
-    loadGoogleMapsScript();
-  }, []);
 
   const toggleNotifications = useCallback(() => {
     setNotificationsEnabled(prev => {

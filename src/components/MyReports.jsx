@@ -4,7 +4,6 @@ import {
   MapPin, Clock, Ruler, ChevronDown, ChevronUp, X, Image as ImageIcon
 } from "lucide-react";
 import { markPotholeFixed, deletePotholeReport, removePotholeImage } from "../services/api";
-import { useAuth } from "../context/AuthContext";
 
 function ConfirmDialog({ message, onConfirm, onCancel }) {
   return (
@@ -40,31 +39,10 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
 }
 
 function MyReports({ potholes = [], onDataChanged }) {
-  const { user } = useAuth();
   const [expandedId, setExpandedId]   = useState(null);
   const [lightboxImg, setLightboxImg] = useState(null);
   const [confirm,     setConfirm]     = useState(null);
   const [loadingId,   setLoadingId]   = useState(null);
-
-  const currentUsername = (user?.username || "").toLowerCase();
-
-  // Strict User Ownership Filtering: Filter potholes submitted by THIS logged in user ONLY
-  const myPotholes = potholes.filter(p => {
-    if (!currentUsername) return false;
-
-    // Check backend reportedBy field
-    if (p.reportedBy && p.reportedBy.toLowerCase() === currentUsername) {
-      return true;
-    }
-
-    // Check local storage records for this specific user
-    try {
-      const localSaved = JSON.parse(localStorage.getItem(`smartroutex_user_reports_${currentUsername}`) || "[]");
-      return localSaved.some(lr => lr.id === p.id || (lr.latitude === p.latitude && lr.longitude === p.longitude));
-    } catch (_) {
-      return false;
-    }
-  });
 
   const handleMarkFixed = async id => {
     setLoadingId(id);
@@ -76,17 +54,6 @@ function MyReports({ potholes = [], onDataChanged }) {
   const handleDelete = async id => {
     setLoadingId(id);
     await deletePotholeReport(id);
-
-    // Also remove from user local storage
-    if (currentUsername) {
-      try {
-        const key = `smartroutex_user_reports_${currentUsername}`;
-        const localSaved = JSON.parse(localStorage.getItem(key) || "[]");
-        const updated = localSaved.filter(item => item.id !== id);
-        localStorage.setItem(key, JSON.stringify(updated));
-      } catch (_) {}
-    }
-
     setLoadingId(null);
     onDataChanged?.();
   };
@@ -98,8 +65,8 @@ function MyReports({ potholes = [], onDataChanged }) {
     onDataChanged?.();
   };
 
-  const activeCount = myPotholes.filter(p => (p.status || "ACTIVE") === "ACTIVE").length;
-  const fixedCount  = myPotholes.filter(p => p.status === "FIXED").length;
+  const activeCount = potholes.filter(p => (p.status || "ACTIVE") === "ACTIVE").length;
+  const fixedCount  = potholes.filter(p => p.status === "FIXED").length;
 
   return (
     <div className="asphalt-card p-6">
@@ -111,10 +78,10 @@ function MyReports({ potholes = [], onDataChanged }) {
         <div>
           <h2 className="text-base font-bold font-heading flex items-center" style={{ color: "var(--ink)" }}>
             <span className="section-dot" />
-            My Reported Potholes ({user?.username || "Guest"})
+            My Reported Potholes
           </h2>
           <p className="text-xs font-mono mt-0.5" style={{ color: "var(--ink-soft)" }}>
-            Private reports submitted by account: <strong className="text-emerald-400">{user?.username || "Guest"}</strong>
+            Manage all hazard reports you have submitted
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -127,8 +94,8 @@ function MyReports({ potholes = [], onDataChanged }) {
         </div>
       </div>
 
-      {/* Empty state when current user has 0 reports */}
-      {myPotholes.length === 0 ? (
+      {/* Empty state */}
+      {potholes.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center"
@@ -136,14 +103,12 @@ function MyReports({ potholes = [], onDataChanged }) {
           >
             <Shield className="w-6 h-6" style={{ color: "var(--ink-soft)" }} />
           </div>
-          <p className="font-bold font-heading text-sm" style={{ color: "var(--ink)" }}>No reports found for {user?.username || "your account"}</p>
-          <p className="text-xs font-mono text-center max-w-sm" style={{ color: "var(--ink-soft)" }}>
-            You haven't submitted any hazard reports yet. Reports you upload will appear here privately under your account.
-          </p>
+          <p className="font-bold font-heading text-sm" style={{ color: "var(--ink)" }}>No reports found</p>
+          <p className="text-xs font-mono" style={{ color: "var(--ink-soft)" }}>Reports you submit will appear here</p>
         </div>
       ) : (
         <div className="space-y-2.5">
-          {myPotholes.map((p, idx) => {
+          {potholes.map((p, idx) => {
             const id         = p.id || idx;
             const isExpanded = expandedId === id;
             const isFixed    = p.status === "FIXED";

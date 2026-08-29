@@ -278,7 +278,6 @@ function ReportPotholeModal({ isOpen, onClose, onPotholeReported, roads = [] }) 
     setSuccessMsg("");
 
     try {
-      const username = user?.username || "Guest";
       const payload = {
         roadName: formData.roadName,
         severity: formData.severity,
@@ -286,19 +285,11 @@ function ReportPotholeModal({ isOpen, onClose, onPotholeReported, roads = [] }) 
         longitude: parseFloat(formData.longitude),
         depth: formData.depth,
         reportedAt: "Just now",
-        reportedBy: username,
-        imageUrl: formData.imageUrl || null
+        imageUrl: formData.imageUrl || null,
+        reportedBy: user?.username || user?.email || null
       };
 
       const result = await reportPothole(payload);
-
-      // Save to user local reports storage
-      try {
-        const key = `smartroutex_user_reports_${username.toLowerCase()}`;
-        const localSaved = JSON.parse(localStorage.getItem(key) || "[]");
-        localSaved.unshift(result);
-        localStorage.setItem(key, JSON.stringify(localSaved));
-      } catch (_) {}
       setSuccessMsg("Pothole report & verified photo successfully transmitted!");
 
       if (onPotholeReported) onPotholeReported(result);

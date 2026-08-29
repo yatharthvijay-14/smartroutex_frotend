@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { planMapRoute, calculateHaversineMeters } from "../services/api";
 import { detectUserPhysicalLocation } from "../services/geocodingService";
 import { Route, Star, ShieldCheck, AlertTriangle, Camera, Image as ImageIcon, X, RefreshCw } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 // Components
 import StatCard               from "../components/StatCard";
@@ -73,9 +74,10 @@ function ErrorState({ error, onRetry }) {
 }
 
 function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation = null, onOpenReportModal, refreshTrigger = 0, onAlert }) {
+  const { user } = useAuth();
   // ── Route state ──────────────────────────────────────────────────────────
-  const [startPoint, setStartPoint] = useState({ name: "Current GPS Location", lat: 25.1800, lng: 75.8390 });
-  const [endPoint,   setEndPoint]   = useState(null); // Destination empty by default until selected
+  const [startPoint, setStartPoint] = useState(null);
+  const [endPoint,   setEndPoint]   = useState(null);
   const [routePlan,  setRoutePlan]  = useState(null);
   const [selectedRouteType, setSelectedRouteType]       = useState("SAFEST");
   const [selectedCandidateRouteId, setSelectedCandidateRouteId] = useState(null);
@@ -83,10 +85,10 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
 
   // ── GPS / navigation state ───────────────────────────────────────────────
   const [isRealGpsActive,    setIsRealGpsActive]    = useState(false);
-  const [currentVehiclePos,  setCurrentVehiclePos]  = useState([25.1800, 75.8390]);
+  const [currentVehiclePos,  setCurrentVehiclePos]  = useState(null);
   const [gpsAccuracy,        setGpsAccuracy]        = useState(10);
-  const [dynamicEtaMinutes,  setDynamicEtaMinutes]  = useState(0);
-  const [dynamicDistanceText,setDynamicDistanceText]= useState("0.0 km");
+  const [dynamicEtaMinutes,  setDynamicEtaMinutes]  = useState(12);
+  const [dynamicDistanceText,setDynamicDistanceText]= useState("4.9 km");
   const [navProgressPercent, setNavProgressPercent] = useState(0);
   const [currentStepIndex,   setCurrentStepIndex]   = useState(0);
 
@@ -174,19 +176,52 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
 
   // ── Automatic Real-Time Physical User Location Detector on Mount ───────────
   useEffect(() => {
-    detectUserPhysicalLocation().then((loc) => {
-      if (loc && loc.lat && loc.lng) {
-        const userLoc = {
-          name: loc.name || "Your Current Location",
-          displayName: loc.displayName || `Coordinates: ${loc.lat}, ${loc.lng}`,
-          lat: loc.lat,
-          lng: loc.lng
-        };
-        setStartPoint(userLoc);
-        setCurrentVehiclePos([loc.lat, loc.lng]);
-        // Destination remains null until selected explicitly
-      }
-    });
+    // Try browser GPS first (fast & accurate)
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const userLoc = {
+            name: "My Current Location",
+            displayName: `GPS: ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+            lat,
+            lng
+          };
+          setStartPoint(userLoc);
+          setCurrentVehiclePos([lat, lng]);
+        },
+        // If GPS denied/unavailable, fall back to IP-based detection
+        () => {
+          detectUserPhysicalLocation().then((loc) => {
+            if (loc && loc.lat && loc.lng) {
+              const userLoc = {
+                name: loc.name || "Your Current Location",
+                displayName: loc.displayName || `Coordinates: ${loc.lat}, ${loc.lng}`,
+                lat: loc.lat,
+                lng: loc.lng
+              };
+              setStartPoint(userLoc);
+              setCurrentVehiclePos([loc.lat, loc.lng]);
+            }
+          });
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+      );
+    } else {
+      // Fallback: IP-based geolocation
+      detectUserPhysicalLocation().then((loc) => {
+        if (loc && loc.lat && loc.lng) {
+          setStartPoint({
+            name: loc.name || "Your Current Location",
+            displayName: loc.displayName || `Coordinates: ${loc.lat}, ${loc.lng}`,
+            lat: loc.lat,
+            lng: loc.lng
+          });
+          setCurrentVehiclePos([loc.lat, loc.lng]);
+        }
+      });
+    }
   }, []);
 
   // ── Real Device GPS Watcher ────────────────────────────────────────────────
@@ -209,14 +244,10 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
   const handleCalculateRoute = useCallback(async (sPoint, ePoint, customPool) => {
     const startP = sPoint || startPoint;
     const endP   = ePoint || endPoint;
-    if (!endP || !endP.lat || !endP.lng) {
-      setRoutePlan(null);
-      return;
-    }
     const sLat = startP?.lat || 25.1800;
     const sLng = startP?.lng || 75.8390;
-    const eLat = endP.lat;
-    const eLng = endP.lng;
+    const eLat = endP?.lat   || 25.1510;
+    const eLng = endP?.lng   || 75.8420;
     const pool = customPool || potholes;
 
     const result = await planMapRoute(sLat, sLng, eLat, eLng, pool);
@@ -224,33 +255,11 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
     if (result?.evaluatedRoutes?.length > 0) {
       setSelectedCandidateRouteId(result.evaluatedRoutes[0].id);
     }
-    if (result) {
-      const isSafest = selectedRouteType === "SAFEST";
-      const dist = isSafest ? result.safestDistance : result.directDistance;
-      const dur = isSafest ? result.safestTime : result.directTime;
-      setDynamicDistanceText(dist || "4.5 km");
-      setDynamicEtaMinutes(parseInt(dur) || 9);
-    }
     setCurrentVehiclePos([sLat, sLng]);
     setRouteInvalidEvent(null);
 
     setActiveRoute(sLat, sLng, eLat, eLng);
-  }, [startPoint, endPoint, potholes, setActiveRoute, selectedRouteType]);
-
-  // ── Sync Route ETA & Distance to UI ──────────────────────────────────────
-  useEffect(() => {
-    if (!endPoint || !routePlan) {
-      setDynamicEtaMinutes(0);
-      setDynamicDistanceText("0.0 km");
-      return;
-    }
-    const isSafest = selectedRouteType === "SAFEST";
-    const distText = isSafest ? (routePlan.safestDistance || routePlan.safestRoute?.distance) : (routePlan.directDistance || routePlan.directRoute?.distance);
-    const durText = isSafest ? (routePlan.safestTime || routePlan.safestRoute?.duration) : (routePlan.directTime || routePlan.directRoute?.duration);
-
-    setDynamicDistanceText(distText || "4.5 km");
-    setDynamicEtaMinutes(parseInt(durText) || 9);
-  }, [routePlan, selectedRouteType, endPoint]);
+  }, [startPoint, endPoint, potholes, setActiveRoute]);
 
   const handleSelectCandidateRoute = (route) => setSelectedCandidateRouteId(route.id);
 
@@ -393,10 +402,19 @@ function Dashboard({ activeTab = "dashboard", searchQuery = "", searchLocation =
   // TAB: myreports (My Submitted Reports View)
   // ─────────────────────────────────────────────────────────────────────────
   if (activeTab === "myreports") {
+    // Only show potholes that belong to the currently logged-in user
+    const currentUsername = user?.username || user?.email || null;
+    const myPotholes = currentUsername
+      ? potholes.filter(p =>
+          p.reportedBy === currentUsername ||
+          p.reportedByEmail === currentUsername ||
+          p.username === currentUsername
+        )
+      : [];
     return (
       <div className="space-y-6 pb-12">
         {statusBar}
-        <MyReports potholes={potholes} onDataChanged={refresh} />
+        <MyReports potholes={myPotholes} onDataChanged={refresh} />
       </div>
     );
   }
