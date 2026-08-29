@@ -94,13 +94,13 @@ export const KOTA_LOCATIONS = [
   { id: "kota-19", name: "Nayapura Bus Stand", displayName: "Interstate Bus Terminal, Nayapura, Kota", lat: 25.1850, lng: 75.8410, type: "bus_stand", aliases: ["bus stand"] },
 
   // ── MALLS, CINEMAS & PARKS ──
-  { id: "k-m1", name: "City Mall Kota", displayName: "City Mall, Jhalawar Road, Commercial Scheme, Kota", lat: 25.1630, lng: 75.8520, type: "mall", aliases: ["city mall"] },
-  { id: "k-m2", name: "Fun Cinema City Mall Kota", displayName: "Fun Cinema, Top Floor City Mall, Kota", lat: 25.1632, lng: 75.8521, type: "cinema", aliases: ["fun cinema"] },
-  { id: "k-m3", name: "Inox Cinema Motion Mall", displayName: "Inox Multiplex, Motion Mall, Jhalawar Road, Kota", lat: 25.1715, lng: 75.8505, type: "cinema", aliases: ["inox cinema"] },
+  { id: "k-m1", name: "City Mall Kota", displayName: "City Mall, Jhalawar Road (Opposite City Park), Kota", lat: 25.1488, lng: 75.8524, type: "mall", aliases: ["city mall", "mall"] },
+  { id: "k-m2", name: "Fun Cinema City Mall Kota", displayName: "Fun Cinema, Top Floor City Mall, Kota", lat: 25.1489, lng: 75.8525, type: "cinema", aliases: ["fun cinema"] },
+  { id: "k-m3", name: "Inox Cinema Motion Mall", displayName: "Inox Multiplex, Motion Mall, Jhalawar Road, Kota", lat: 25.1550, lng: 75.8510, type: "cinema", aliases: ["inox cinema"] },
   { id: "kota-20", name: "Seven Wonders Park", displayName: "Kishore Sagar Lake Promenade, Kota", lat: 25.1730, lng: 75.8410, type: "park", aliases: ["7 wonders", "seven wonders"] },
   { id: "kota-21", name: "Kishore Sagar Lake", displayName: "Jagmandir Palace & Lake, Kota", lat: 25.1750, lng: 75.8430, type: "lake", aliases: ["kishore sagar"] },
   { id: "k-p1", name: "Chambal Garden", displayName: "Chambal Garden Park, Chambal River Bank, Kota", lat: 25.1550, lng: 75.8180, type: "park", aliases: ["chambal garden"] },
-  { id: "k-p2", name: "Oxyzone City Park Kota", displayName: "Oxyzone City Park (Kanwal Garden), IL Sector, Kota", lat: 25.1650, lng: 75.8450, type: "park", aliases: ["oxyzone park"] },
+  { id: "k-p2", name: "Oxyzone City Park Kota", displayName: "Oxyzone City Park (Opposite City Mall), Jhalawar Road, Kota", lat: 25.1492, lng: 75.8505, type: "park", aliases: ["city park", "oxyzone park", "kanwal garden"] },
   { id: "kota-28", name: "Chawani Choraaha", displayName: "Chawani Circle, Kota", lat: 25.1760, lng: 75.8510, type: "junction", aliases: ["chawani"] },
   { id: "kota-29", name: "Borkheda Flyover", displayName: "Baran Road, Borkheda, Kota", lat: 25.1920, lng: 75.8810, type: "flyover", aliases: ["borkheda"] },
   { id: "kota-30", name: "Kunhari Choraaha", displayName: "Bundi Road, Kunhari, Kota", lat: 25.2050, lng: 75.8350, type: "junction", aliases: ["kunhari"] },
